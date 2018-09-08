@@ -4,6 +4,7 @@ public class Lexan{
   private char ch = ' ';
   private Token[] iniToken = new Token[128];
   private int inum = 0;
+  private double dnum = 0;
   private String name = "";
 
   public Lexan(SrcReader src){
@@ -34,6 +35,8 @@ public class Lexan{
     iniToken[')'] = Token.Rparan;
   }
 
+
+  //One too many next chars in here
   public Token next(){
     Token sy = Token.nullToken;
     while(ch==' ') ch = src.nextch();
@@ -41,10 +44,20 @@ public class Lexan{
 
     switch(sy){
       case Number:
-      inum = 0;
+        inum = 0;
         while(ch >= '0' && ch <= '9'){
           inum = inum*10+ch-'0';
           ch = src.nextch();
+        }
+        if(ch == '.'){
+          dnum = inum;
+          inum = 0;
+          int i = 0;
+          while(ch >= '0' && ch <= '9'){
+            dnum = dnum + ch-'0'/10*(i);
+            i++;
+            ch = src.nextch();
+          }
         }
         break;
       case Ident:
