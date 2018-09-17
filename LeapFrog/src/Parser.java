@@ -9,7 +9,7 @@ public class Parser{
 
   public void trump(){
     expect(Token.Trump);
-    expect(Token.lbrack);
+    expect(Token.Lbrack);
     while(tok == Token.Tweet || tok == Token.Integer ||
       tok == Token.Ident || tok == Token.Lparen ||
       tok == Token.Question || tok == Token.eol){
@@ -17,12 +17,12 @@ public class Parser{
       statement();
 
     }
-    expect(Token.rbrack);
+    expect(Token.Rbrack);
     expect(Token.Impeached);
   }
 
   public void expect(Token sy){
-    if(tok = sy){
+    if(tok == sy){
       tok = lex.next();
     }else{
       error("Expected "+ sy + ", not found");
@@ -51,7 +51,7 @@ public class Parser{
 
   public void term(){
     factor();
-    while(token == Token.Mult || tok == Token.Divd){
+    while(tok == Token.Mult || tok == Token.Divd){
       term();
     }
   }
@@ -62,7 +62,7 @@ public class Parser{
         expect(Token.Integer);
         break;
       case Ident:
-        expect(Token.Indent);
+        expect(Token.Ident);
         break;
       case Lparen:
         expect(Token.Lparen);
