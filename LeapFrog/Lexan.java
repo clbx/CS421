@@ -71,6 +71,16 @@ public class Lexan {
 				name+=ch;
 				ch = src.nextch();
 			}
+			switch (name) {
+			case "if": 		sy = Token.If;
+			break;
+			case "while": 	sy = Token.While;
+			break;
+			case "else":	sy = Token.Else;
+			break;
+			default:
+				break;
+			}
 			break;
 		case Lss:
 			ch = src.nextch();
