@@ -16,6 +16,7 @@ public class SrcReader {
 		filename = name;
 		infile = new File(filename);
 		src = new Scanner(infile);
+		ch = nextch();
 	}
 
 	public char nextch() {
