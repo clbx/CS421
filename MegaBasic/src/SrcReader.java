@@ -16,19 +16,22 @@ public class SrcReader {
 		filename = name;
 		infile = new File(filename);
 		src = new Scanner(infile);
-		ch = nextch();
+		//ch = nextch();
 	}
 
 	public char nextch() {
 		if (pos>=line.length()) {
 			if (src.hasNextLine()) {
-				line = src.nextLine();
+				line = src.nextLine()+eol;
 				System.out.println("// "+line);
 				pos =0;
-				return eol;
+				//System.out.println("EOL");
+				return nextch();
 			}
-			else
+			else {
+				System.out.println("EOF");
 				return eof;
+			}
 		}
 		ch = line.charAt(pos++);
 		return ch;

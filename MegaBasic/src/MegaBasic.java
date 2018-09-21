@@ -6,6 +6,8 @@ public class MegaBasic {
 		SrcReader src = new SrcReader("test.mb");
 		Lexan lex = new Lexan(src);
 		Parser parser = new Parser(lex);
+		char ch;
+		Token sy;
 
 		System.out.println("Parsing Beginning");
 		parser.program();
