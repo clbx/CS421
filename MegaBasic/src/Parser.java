@@ -1,8 +1,8 @@
 
 public class Parser {
+  final boolean debug = true;
   Lexan lex;
   Token tok;
-  final boolean debug = true;
 
   public Parser(Lexan lex) {
     this.lex = lex;
