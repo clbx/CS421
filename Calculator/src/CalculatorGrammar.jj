@@ -63,58 +63,83 @@ TOKEN : /* OPERATORS */
 | < MINUS : "-" >
 | < MULTIPLY : "*" >
 | < DIVIDE : "/" >
+| < STOP : "stop" >
 }
 
 TOKEN :
 {
-  < CONSTANT : (< DIGIT >)+ >
+  < CONSTANT : (< DIGIT >)+ ("." (< DIGIT >)* )?>
 | < #DIGIT : [ "0"-"9" ] >
 }
 
 int one_line() :
-{}
+{double answer;}
 {
-  sum() ";"
+  answer = sum() ";"
   {
+    System.out.println("The answer is: "+answer);
     return 0;
   }
 | ";"
   {
     return 1;
   }
+| < STOP >
+  {
+    System.out.println("OOOhh, I just felt a shudder in the force!");
+  	System.exit(1);
+  	}
 }
 
-void sum() :
-{}
+double sum() :
+{ double value,operand;}
 {
-  term()
-  (   (< PLUS > | < MINUS > )  term() )*
+  value=term()
+  (
+      (< PLUS > {value+=term();}
+      | < MINUS > {value-=term();})
+  	   
+     
+  )*
+  { return value; }
 }
 
-void term() :
-{}
+double term() :
+{ double value, operand;
+	Token operator;}
 {
-  unary()
+  value = unary()
   (
     (
-      < MULTIPLY >
-    | < DIVIDE >
+      operator = < MULTIPLY >
+    | operator = < DIVIDE >
     )
-    unary()
+    operand = unary()
+    { 
+    	if (operator.kind==CalculatorConstants.MULTIPLY)
+    		value *= operand;
+    	else
+    		value /= operand; 
+    }
   )*
+  {
+    return value;
+  }
 }
 
-void unary() :
+double unary() :
 {
   double n;
   System.out.println("Unary");}
 {
   (
-    < MINUS > n=element() { n = -n; }
-| n=element()
+  	n=element()
+  |
+    < MINUS > n=unary() { n = -n; }
 )
  {
 	System.out.println("Unary got back: "+n);
+	return n;
  }
 }
 
