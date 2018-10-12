@@ -1,158 +1,60 @@
 /**
  * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
- */
-options
-{
-  static = true;
-}
-
-PARSER_BEGIN(Calculator)
-
-public class Calculator
-{
-  public static void main(String args []) throws ParseException
-  {
-    Calculator parser = new Calculator(System.in);
-    while (true)
-    {
-      System.out.println("Reading from standard input...");
-      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");
-      try
-      {
-        switch (Calculator.one_line())
-        {
-          case 0 : 
-          System.out.println("OK.");
-          break;
-          case 1 : 
-          System.out.println("Goodbye.");
-          break;
-          default : 
-          break;
-        }
-      }
-      catch (Exception e)
-      {
-        System.out.println("NOK.");
-        System.out.println(e.getMessage());
-        Calculator.ReInit(System.in);
-      }
-      catch (Error e)
-      {
-        System.out.println("Oops.");
-        System.out.println(e.getMessage());
-        break;
-      }
-    }
-  }
-}
-
-PARSER_END(Calculator)
-
-SKIP :
-{
-  " "
-| "\r"
-| "\t"
-| "\n"
-}
-
-TOKEN : /* OPERATORS */
-{
-  < PLUS : "+" >
-| < MINUS : "-" >
-| < MULTIPLY : "*" >
-| < DIVIDE : "/" >
-| < STOP : "stop" >
-}
+ */options{  static = true;}PARSER_BEGIN(Calculator)
+public class Calculator{  public static void main(String args []) throws ParseException  {    Calculator parser = new Calculator(System.in);    while (true)    {      System.out.println("Reading from standard input...");      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");      try      {        switch (Calculator.one_line())        {          case 0 :           System.out.println("OK.");          break;          case 1 :           System.out.println("Goodbye.");          break;          default :           break;        }      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        Calculator.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(Calculator)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >
+| < STOP : "stop" >}
 
 TOKEN :
-{
-  < CONSTANT : (< DIGIT >)+ ("." (< DIGIT >)* )?>
-| < #DIGIT : [ "0"-"9" ] >
-}
-
-int one_line() :
-{double answer;}
-{
-  answer = sum() ";"
-  {
-    System.out.println("The answer is: "+answer);
-    return 0;
-  }
-| ";"
-  {
-    return 1;
-  }
+{  < CONSTANT : (< DIGIT >)+ ("." (< DIGIT >)* )?>| < #DIGIT : [ "0"-"9" ] >}int one_line() :{double answer;}{  answer = sum() ";"  {    System.out.println("The answer is: "+answer);
+    return 0;  }| ";"  {    return 1;  }
 | < STOP >
   {
     System.out.println("OOOhh, I just felt a shudder in the force!");
   	System.exit(1);
-  	}
-}
-
-double sum() :
-{ double value,operand;}
-{
-  value=term()
-  (
-      (< PLUS > {value+=term();}
+  	}}double sum() :{ double value,operand;}{  value=term()  (
+      (< PLUS > {value-=term();}
       | < MINUS > {value-=term();})
   	   
      
   )*
-  { return value; }
-}
-
-double term() :
-{ double value, operand;
-	Token operator;}
+  { return value; }}
+int block() :
+()
 {
-  value = unary()
   (
-    (
-      operator = < MULTIPLY >
-    | operator = < DIVIDE >
-    )
-    operand = unary()
+  "("
+  	( statement())? ( ";" (statement())? )*
+
+  ")"
+
+  {
+    return 0;
+  }
+)
+| ("." { return 1; })
+}    
+
+double term() :{ double value, operand;
+	Token operator;}{  value = unary()  (    (      operator = < MULTIPLY >    | operator = < DIVIDE >    )    operand = unary()
     { 
     	if (operator.kind==CalculatorConstants.MULTIPLY)
     		value *= operand;
     	else
     		value /= operand; 
-    }
-  )*
-  {
-    return value;
-  }
-}
-
-double unary() :
-{
+    }  )*
+  {    return value;
+  }}double unary() :{
   double n;
-  System.out.println("Unary");}
-{
-  (
+  System.out.println("Unary");}{  (
   	n=element()
-  |
-    < MINUS > n=unary() { n = -n; }
-)
- {
-	System.out.println("Unary got back: "+n);
+  |    < MINUS > n=unary() { n = -n; })
+ {	System.out.println("Unary got back: "+n);
 	return n;
- }
-}
-
-double element() :
-{
+ }}double element() :{
   Token t=null;
-  System.out.println("Element");}
-{
-  (
-      t =< CONSTANT >
-      | { System.out.println("(");} "(" sum() ")" { System.out.println(")");}
-      | { System.out.println("[");}"[" sum() "]" { System.out.println("]");}
-  )
+  System.out.println("Element");}{
+  (      t =< CONSTANT >      | { System.out.println("(");} "(" sum() ")" { System.out.println(")");}
+      | { System.out.println("[");}"[" sum() "]" { System.out.println("]");}  )
 { System.out.println("<"+t.image+">");
   return Double.parseDouble(t.image); }
 }
