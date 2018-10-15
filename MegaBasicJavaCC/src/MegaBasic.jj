@@ -1,35 +1,149 @@
 /**
  * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
  */options{  static = true;}PARSER_BEGIN(MegaBasic)
-public class MegaBasic{  public static void main(String args []) throws ParseException  {    MegaBasic parser = new MegaBasic(System.in);    while (true)    {      System.out.println("Reading from standard input...");      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");      try      {        switch (MegaBasic.one_line())        {          case 0 :           System.out.println("OK.");          break;          case 1 :           System.out.println("Goodbye.");          break;          default :           break;        }      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        MegaBasic.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(MegaBasic)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >}TOKEN :{  < CONSTANT : (< DIGIT >)+ >| < #DIGIT : [ "0"-"9" ] >}
+public class MegaBasic{  public static void main(String args []) throws ParseException  {    MegaBasic parser = new MegaBasic(System.in);    while (true)    {      System.out.println("Reading from standard input...");      System.out.print("Enter an expression like \"1+(2+3)*4;\" :");      try      {        switch (MegaBasic.program())        {          case 0 :           System.out.println("OK.");          break;          case 1 :           System.out.println("Goodbye.");          break;          default :           break;        }      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        MegaBasic.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(MegaBasic)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >
+| < EQUAL : "=" >}TOKEN :{  < CONSTANT : (< DIGIT >)+ >| < #DIGIT : [ "0"-"9" ] >}
 
-
-void statement() :
-{
-//Java code to get before rule is procsses
-
-  }
-{
-	//Where rule is processed
+TOKEN: {  //Identifier
+  < IDENT : < LETTER >(< LETTER >|< DIGIT >)* >
+| < #LETTER : (["a"-"z","A"-"Z"]) >
   
-  PrintStmt() | Assignment() | Block()
-}
+}
 
-
-void PrintStmt() :
+int program():
 {}
 {
-	"Print"
+  stmt() ";"
+  {
+    return 0;
+  }
+| ";"
+{
+  return 1;
+}
+  
 }
 
-
-void Assignment() :
+void stmt():
 {}
 {
-  varref() "=" expression()
+  printStmt() | assignment()
+}
+
+
+void printStmt():
+{}
+{
+  "Print" expression()
+}
+
+
+void assignment():
+{
+  ExpNode root = new ExpNode();
+  ExpNode lnode = null;
+  ExpNode rnode = null;
+}
+
+{
+  lnode=varRef() < EQUAL > rnode=expression()
+  {
+    root.operator = '=';
+    root.left = lnode;
+    root.right = rnode;
+    root.traverse();
+  }
 }
 
 
 
 
-int one_line() :{}{  sum() ";"  {    return 0;  }| ";"  {    return 1;  }}void sum() :{}{  term()  (    (      < PLUS >    | < MINUS >    )    term()  )*}void term() :{}{  unary()  (    (      < MULTIPLY >    | < DIVIDE >    )    unary()  )*}void unary() :{}{  < MINUS > element()| element()}void element() :{}{  < CONSTANT >| "(" sum() ")"}
+
+ExpNode expression():
+{
+  ExpNode node = new ExpNode();
+  ExpNode lnode = null;
+  ExpNode rnode = null;
+}
+{
+	lnode = term()((
+	  "+" { node.operator = '+'; }
+	  |"-" { node.operator = '-'; }
+	  )rnode = term())*
+
+	{
+	  node.left = lnode;
+	  node.right = rnode;
+	  return node;
+	}
+}
+
+ExpNode term():
+{
+  ExpNode node = new ExpNode();
+  ExpNode lnode = null;
+  ExpNode rnode = null;
+    
+}
+{
+	lnode = factor()((
+	  "*" { node.operator = '*';}
+	|"/" { node.operator = '/';}
+	)
+	rnode = factor())*
+
+	{
+	  node.left = lnode;
+	  node.right = rnode;
+	  return node;
+	}
+}
+
+ExpNode factor():
+{
+  ExpNode node = new ExpNode();
+  Token tok;  
+}
+{
+	tok = < CONSTANT > { node.operand = tok.image; node.operator = 'c';}
+	{
+	  return node;
+	}
+	| node = varRef()
+	{
+	  return node;
+	}
+	| ("("node = expression()")")
+	{
+	  return node;
+	}
+}
+
+
+ExpNode varRef():
+{
+  ExpNode node = new ExpNode();
+  Token tok;
+}
+{
+	tok = < IDENT >
+	{
+	  node.operand = tok.image;
+	  node.operator = 'c';
+	  return node;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -9,7 +9,7 @@ public class MegaBasic implements MegaBasicConstants {
       System.out.print("Enter an expression like \u005c"1+(2+3)*4;\u005c" :");
       try
       {
-        switch (MegaBasic.one_line())
+        switch (MegaBasic.program())
         {
           case 0 :
           System.out.println("OK.");
@@ -36,18 +36,17 @@ public class MegaBasic implements MegaBasicConstants {
     }
   }
 
-  static final public int one_line() throws ParseException {
+  static final public int program() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case MINUS:
-    case CONSTANT:
-    case 12:
-      sum();
-      jj_consume_token(11);
+    case IDENT:
+    case 15:
+      stmt();
+      jj_consume_token(14);
     {if (true) return 0;}
       break;
-    case 11:
-      jj_consume_token(11);
-    {if (true) return 1;}
+    case 14:
+      jj_consume_token(14);
+  {if (true) return 1;}
       break;
     default:
       jj_la1[0] = jj_gen;
@@ -57,8 +56,44 @@ public class MegaBasic implements MegaBasicConstants {
     throw new Error("Missing return statement in function");
   }
 
-  static final public void sum() throws ParseException {
-    term();
+  static final public void stmt() throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case 15:
+      printStmt();
+      break;
+    case IDENT:
+      assignment();
+      break;
+    default:
+      jj_la1[1] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+  }
+
+  static final public void printStmt() throws ParseException {
+    jj_consume_token(15);
+    expression();
+  }
+
+  static final public void assignment() throws ParseException {
+  ExpNode root = new ExpNode();
+  ExpNode lnode = null;
+  ExpNode rnode = null;
+    lnode = varRef();
+    jj_consume_token(EQUAL);
+    rnode = expression();
+    root.operator = '=';
+    root.left = lnode;
+    root.right = rnode;
+    root.traverse();
+  }
+
+  static final public ExpNode expression() throws ParseException {
+  ExpNode node = new ExpNode();
+  ExpNode lnode = null;
+  ExpNode rnode = null;
+    lnode = term();
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -67,27 +102,36 @@ public class MegaBasic implements MegaBasicConstants {
         ;
         break;
       default:
-        jj_la1[1] = jj_gen;
+        jj_la1[2] = jj_gen;
         break label_1;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case PLUS:
         jj_consume_token(PLUS);
+                node.operator = '+';
         break;
       case MINUS:
         jj_consume_token(MINUS);
+                 node.operator = '-';
         break;
       default:
-        jj_la1[2] = jj_gen;
+        jj_la1[3] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-      term();
+      rnode = term();
     }
+          node.left = lnode;
+          node.right = rnode;
+          {if (true) return node;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void term() throws ParseException {
-    unary();
+  static final public ExpNode term() throws ParseException {
+  ExpNode node = new ExpNode();
+  ExpNode lnode = null;
+  ExpNode rnode = null;
+    lnode = factor();
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -96,57 +140,66 @@ public class MegaBasic implements MegaBasicConstants {
         ;
         break;
       default:
-        jj_la1[3] = jj_gen;
+        jj_la1[4] = jj_gen;
         break label_2;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MULTIPLY:
         jj_consume_token(MULTIPLY);
+                node.operator = '*';
         break;
       case DIVIDE:
         jj_consume_token(DIVIDE);
+               node.operator = '/';
         break;
       default:
-        jj_la1[4] = jj_gen;
+        jj_la1[5] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-      unary();
+      rnode = factor();
     }
+          node.left = lnode;
+          node.right = rnode;
+          {if (true) return node;}
+    throw new Error("Missing return statement in function");
   }
 
-  static final public void unary() throws ParseException {
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case MINUS:
-      jj_consume_token(MINUS);
-      element();
-      break;
-    case CONSTANT:
-    case 12:
-      element();
-      break;
-    default:
-      jj_la1[5] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
-    }
-  }
-
-  static final public void element() throws ParseException {
+  static final public ExpNode factor() throws ParseException {
+  ExpNode node = new ExpNode();
+  Token tok;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case CONSTANT:
-      jj_consume_token(CONSTANT);
+      tok = jj_consume_token(CONSTANT);
+                             node.operand = tok.image; node.operator = 'c';
+          {if (true) return node;}
       break;
-    case 12:
-      jj_consume_token(12);
-      sum();
-      jj_consume_token(13);
+    case IDENT:
+      node = varRef();
+          {if (true) return node;}
+      break;
+    case 16:
+      jj_consume_token(16);
+      node = expression();
+      jj_consume_token(17);
+          {if (true) return node;}
       break;
     default:
       jj_la1[6] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
+  }
+
+  static final public ExpNode varRef() throws ParseException {
+  ExpNode node = new ExpNode();
+  Token tok;
+    tok = jj_consume_token(IDENT);
+          node.operand = tok.image;
+          node.operator = 'c';
+          {if (true) return node;}
+    throw new Error("Missing return statement in function");
   }
 
   static private boolean jj_initialized_once = false;
@@ -165,7 +218,7 @@ public class MegaBasic implements MegaBasicConstants {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x1a40,0x60,0x60,0x180,0x180,0x1240,0x1200,};
+      jj_la1_0 = new int[] {0xd000,0x9000,0x60,0x60,0x180,0x180,0x11400,};
    }
 
   /** Constructor with InputStream. */
@@ -303,7 +356,7 @@ public class MegaBasic implements MegaBasicConstants {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[14];
+    boolean[] la1tokens = new boolean[18];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -317,7 +370,7 @@ public class MegaBasic implements MegaBasicConstants {
         }
       }
     }
-    for (int i = 0; i < 14; i++) {
+    for (int i = 0; i < 18; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
