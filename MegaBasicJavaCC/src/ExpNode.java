@@ -12,7 +12,7 @@ public class ExpNode {
 	 * c if it's a constant
 	 * or an operator (+,-,=,etc.)
 	 */
-	char operator;   //Holds operators when they're needed
+	char operator = '\0';   //Holds operators when they're needed
 	String operand;  //Holds operands when they're needed
 	
 	ExpNode left = null;
@@ -27,7 +27,7 @@ public class ExpNode {
 			left.traverse();
 		if(right != null) 
 			right.traverse();
-		System.out.print(this+" ");
+		System.out.print(""+this);
 	}
 	
 	/**
@@ -35,7 +35,9 @@ public class ExpNode {
 	 */
 	public String toString() {
 		if(operator == 'c')
-			return operand;
-		return " "+operator;
+			return "[oa:"+operand+"]";
+		if(operator == '\0')
+			return "";
+		return "[op:"+operator+"]";
 	}
 }
