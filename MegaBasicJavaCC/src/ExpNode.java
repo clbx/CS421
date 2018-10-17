@@ -35,9 +35,9 @@ public class ExpNode {
 	 */
 	public String toString() {
 		if(operator == 'c')
-			return "[oa:"+operand+"]";
+			return ""+operand;
 		if(operator == '\0')
 			return "";
-		return "[op:"+operator+"]";
+		return ""+operator;
 	}
 }

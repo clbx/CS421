@@ -104,11 +104,11 @@ public class MegaBasic implements MegaBasicConstants {
   }
 
   static final public ExpNode expression() throws ParseException {
-  ExpNode node;
-  ExpNode lnode = null;
-  ExpNode rnode = null;
-  char optemp;
-    node = term();
+    ExpNode root = null;
+    ExpNode lnode = null;
+    ExpNode rnode = null;
+    char operationTemp;
+    root = term();
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -123,11 +123,11 @@ public class MegaBasic implements MegaBasicConstants {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case PLUS:
         jj_consume_token(PLUS);
-                       optemp = '+';
+              operationTemp = '+';
         break;
       case MINUS:
         jj_consume_token(MINUS);
-                       optemp = '-';
+                 operationTemp = '-';
         break;
       default:
         jj_la1[3] = jj_gen;
@@ -135,21 +135,22 @@ public class MegaBasic implements MegaBasicConstants {
         throw new ParseException();
       }
       rnode = term();
-            lnode = new ExpNode();
-            lnode.left = node;
-            lnode.right= rnode;
-            node = lnode;
-            node.operator = optemp;
+      lnode = root;
+      root = new ExpNode();
+      root.left = lnode;
+      root.right = rnode;
+      root.operator = operationTemp;
     }
-          {if (true) return node;}
+    {if (true) return root;}
     throw new Error("Missing return statement in function");
   }
 
   static final public ExpNode term() throws ParseException {
-  ExpNode node = new ExpNode();
+  ExpNode root = null;
   ExpNode lnode = null;
   ExpNode rnode = null;
-    lnode = factor();
+  Token tok = null;
+    root = factor();
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -163,12 +164,10 @@ public class MegaBasic implements MegaBasicConstants {
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MULTIPLY:
-        jj_consume_token(MULTIPLY);
-                node.operator = '*';
+        tok = jj_consume_token(MULTIPLY);
         break;
       case DIVIDE:
-        jj_consume_token(DIVIDE);
-               node.operator = '/';
+        tok = jj_consume_token(DIVIDE);
         break;
       default:
         jj_la1[5] = jj_gen;
@@ -176,10 +175,13 @@ public class MegaBasic implements MegaBasicConstants {
         throw new ParseException();
       }
       rnode = factor();
+          lnode = root;
+          root = new ExpNode();
+          root.left = lnode;
+          root.right = rnode;
+          root.operator = tok.image.charAt(0);
     }
-          node.left = lnode;
-          node.right = rnode;
-          {if (true) return node;}
+          {if (true) return root;}
     throw new Error("Missing return statement in function");
   }
 

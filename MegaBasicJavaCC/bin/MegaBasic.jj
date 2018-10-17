@@ -73,53 +73,55 @@ void assignment():
 
 
 
-ExpNode expression():
+ExpNode expression() :
 {
-  ExpNode node;
-  ExpNode lnode = null;
-  ExpNode rnode = null;
-  char optemp;
+    ExpNode root = null;
+    ExpNode lnode = null;
+    ExpNode rnode = null;
+    char operationTemp;
 }
 {
-	node = term()
-	(
-	  (
-	  	 "+" { optemp = '+'; }
-	  	|"-" { optemp = '-'; }
-	  )
-	  rnode = term()
-	  {
-	    lnode = new ExpNode();
-	    lnode.left = node;
-	    lnode.right= rnode;
-	    node = lnode;
-	    node.operator = optemp;
-	  }
-	  )*
-
-	{
-	  return node;
-	}
+  root = term()((
+    < PLUS > {operationTemp = '+';}
+    | < MINUS > {operationTemp = '-';}
+    )
+    rnode = term()
+  {
+      lnode = root;
+      root = new ExpNode();
+      root.left = lnode;
+      root.right = rnode;
+      root.operator = operationTemp;
+  }
+  )*
+  {
+    return root;
+  }
 }
 
 ExpNode term():
 {
-  ExpNode node = new ExpNode();
+  ExpNode root = null;
   ExpNode lnode = null;
   ExpNode rnode = null;
-    
+  Token tok = null;    
 }
 {
-	lnode = factor()((
-	  "*" { node.operator = '*';}
-	|"/" { node.operator = '/';}
+	root = factor()((
+	tok = < MULTIPLY >
+	|tok = < DIVIDE >
 	)
-	rnode = factor())*
-
+	rnode = factor()
 	{
-	  node.left = lnode;
-	  node.right = rnode;
-	  return node;
+	  lnode = root;
+	  root = new ExpNode();
+	  root.left = lnode;
+	  root.right = rnode;
+	  root.operator = tok.image.charAt(0);
+	}
+	)*
+	{
+	  return root;
 	}
 }
 

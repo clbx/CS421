@@ -1,0 +1,34 @@
+1: Write the BNF for a real number that can be represented as either a whole number plus a decimal part 
+that are separated by a decimal point or represented using exponential notation (by adding an E + or - 
+an exponent).
+
+< REAL : (< DIGIT >) + ("." (< DIGIT >)* )? + ("E" ("+"|"-") < DIGIT >)? >
+
+2: Write the BNF for a Java method heading.  Include the first line of a method including possible 
+attributes, the return type, the method name and a parameter list.
+
+
+< TYPE > (< IDENT >)? "(" ((< TYPE > < IDENT >)*)? ")"
+ 
+3: Write the BNF for a Java switch statement.
+
+<SWITCH> "(" <IDENT> ")" "{" ((<CASE> <IDENT> ":" expression() *)?  ((<DEFAULT> ":" expression() *)? "}"
+
+4: Write the BNF for a Java array declaration of any number of dimensions.
+
+< TYPE > < IDENT > "[" < DIGIT > "]"
+
+5: Write a sequence of Java statements that will be considered correct according to the following BNF:
+
+Block = "{"  ( Statement ";" )*  "}":
+
+
+{
+        abc = 123;
+        print "you and me";
+}
+
+6: Correct the BNF for a block of statements so that the semicolon is not require before a "}"
+
+Block = "{"  ( Statement (";")? )*  "}":
+
