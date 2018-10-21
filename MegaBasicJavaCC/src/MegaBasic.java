@@ -40,13 +40,14 @@ public class MegaBasic implements MegaBasicConstants {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case PRINT:
     case IF:
+    case LBRACE:
     case IDENT:
       stmt();
-      jj_consume_token(17);
+      jj_consume_token(19);
     {if (true) return 0;}
       break;
-    case 17:
-      jj_consume_token(17);
+    case 19:
+      jj_consume_token(19);
   {if (true) return 1;}
       break;
     default:
@@ -66,7 +67,10 @@ public class MegaBasic implements MegaBasicConstants {
       assignment();
       break;
     case IF:
-      If();
+      ifStmt();
+      break;
+    case LBRACE:
+      block();
       break;
     default:
       jj_la1[1] = jj_gen;
@@ -75,19 +79,42 @@ public class MegaBasic implements MegaBasicConstants {
     }
   }
 
-  static final public void If() throws ParseException {
-    jj_consume_token(IF);
-    jj_consume_token(18);
-    expression();
-    jj_consume_token(19);
-    stmt();
-    jj_consume_token(ELSE);
-    stmt();
+  static final public void block() throws ParseException {
+    jj_consume_token(LBRACE);
+    label_1:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case PRINT:
+      case IF:
+      case LBRACE:
+      case IDENT:
+        ;
+        break;
+      default:
+        jj_la1[2] = jj_gen;
+        break label_1;
+      }
+      stmt();
+    }
+    jj_consume_token(RBRACE);
   }
 
   static final public void printStmt() throws ParseException {
+        ExpNode node;
     jj_consume_token(PRINT);
+    node = expression();
+    node.traverse();
+    System.out.println();
+  }
+
+  static final public void ifStmt() throws ParseException {
+    jj_consume_token(IF);
+    jj_consume_token(20);
     expression();
+    jj_consume_token(21);
+    stmt();
+    jj_consume_token(ELSE);
+    stmt();
   }
 
   static final public void assignment() throws ParseException {
@@ -109,7 +136,7 @@ public class MegaBasic implements MegaBasicConstants {
     ExpNode rnode = null;
     char operationTemp;
     root = term();
-    label_1:
+    label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case PLUS:
@@ -117,8 +144,8 @@ public class MegaBasic implements MegaBasicConstants {
         ;
         break;
       default:
-        jj_la1[2] = jj_gen;
-        break label_1;
+        jj_la1[3] = jj_gen;
+        break label_2;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case PLUS:
@@ -130,7 +157,7 @@ public class MegaBasic implements MegaBasicConstants {
                  operationTemp = '-';
         break;
       default:
-        jj_la1[3] = jj_gen;
+        jj_la1[4] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -151,7 +178,7 @@ public class MegaBasic implements MegaBasicConstants {
   ExpNode rnode = null;
   Token tok = null;
     root = factor();
-    label_2:
+    label_3:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MULTIPLY:
@@ -159,8 +186,8 @@ public class MegaBasic implements MegaBasicConstants {
         ;
         break;
       default:
-        jj_la1[4] = jj_gen;
-        break label_2;
+        jj_la1[5] = jj_gen;
+        break label_3;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case MULTIPLY:
@@ -170,7 +197,7 @@ public class MegaBasic implements MegaBasicConstants {
         tok = jj_consume_token(DIVIDE);
         break;
       default:
-        jj_la1[5] = jj_gen;
+        jj_la1[6] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -198,14 +225,14 @@ public class MegaBasic implements MegaBasicConstants {
       node = varRef();
           {if (true) return node;}
       break;
-    case 18:
-      jj_consume_token(18);
+    case 20:
+      jj_consume_token(20);
       node = expression();
-      jj_consume_token(19);
+      jj_consume_token(21);
           {if (true) return node;}
       break;
     default:
-      jj_la1[6] = jj_gen;
+      jj_la1[7] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -232,13 +259,13 @@ public class MegaBasic implements MegaBasicConstants {
   static public Token jj_nt;
   static private int jj_ntk;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[7];
+  static final private int[] jj_la1 = new int[8];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x28c00,0x8c00,0x60,0x60,0x180,0x180,0x4a000,};
+      jj_la1_0 = new int[] {0xa2c00,0x22c00,0x22c00,0x60,0x60,0x180,0x180,0x128000,};
    }
 
   /** Constructor with InputStream. */
@@ -259,7 +286,7 @@ public class MegaBasic implements MegaBasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -273,7 +300,7 @@ public class MegaBasic implements MegaBasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -290,7 +317,7 @@ public class MegaBasic implements MegaBasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -300,7 +327,7 @@ public class MegaBasic implements MegaBasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -316,7 +343,7 @@ public class MegaBasic implements MegaBasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -325,7 +352,7 @@ public class MegaBasic implements MegaBasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 7; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
   }
 
   static private Token jj_consume_token(int kind) throws ParseException {
@@ -376,12 +403,12 @@ public class MegaBasic implements MegaBasicConstants {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[20];
+    boolean[] la1tokens = new boolean[22];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 8; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -390,7 +417,7 @@ public class MegaBasic implements MegaBasicConstants {
         }
       }
     }
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 22; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

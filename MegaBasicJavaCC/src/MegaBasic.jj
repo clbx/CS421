@@ -6,7 +6,11 @@ public class MegaBasic{  public static void main(String args []) throws ParseE
 | < PRINT :"print" >
 | < IF : "if" >
 | < ELSE : "else" >}
-
+TOKEN:
+{
+  < LBRACE : "{" >
+| < RBRACE : "}" >
+}
 TOKEN :{  < CONSTANT : (< DIGIT >)+ >| < #DIGIT : [ "0"-"9" ] >}
 
 TOKEN: {  //Identifier
@@ -30,26 +34,43 @@ int program():
 }
 
 
+
+
 void stmt():
 {}
 {
   printStmt()
   | assignment()
-  | If()
+  | ifStmt()
+  | block()
 }
 
 
-void If():
+void block():
+{}
+{
+	 < LBRACE > (stmt())* < RBRACE >
+}
+
+void printStmt():
+{
+	ExpNode node;
+}
+{
+  < PRINT > node=expression()
+  {
+    node.traverse();
+    System.out.println();
+  }
+}
+
+
+void ifStmt():
 { }
 {
   < IF > "(" expression() ")" stmt() < ELSE > stmt()
 }
 
-void printStmt():
-{}
-{
-  < PRINT > expression()
-}
 
 
 void assignment():
