@@ -22,7 +22,7 @@ TOKEN: {  //Identifier
 int program():
 {}
 {
-  stmt() ";"
+  block() ";"
   {
     return 0;
   }
@@ -36,31 +36,37 @@ int program():
 
 
 
-void stmt():
-{}
+FunctionalNode stmt():
 {
-  printStmt()
-  | assignment()
-  | ifStmt()
-  | block()
+  FunctionalNode func = new FunctionalNode();
+  ExpNode node;
+  }
+{
+  printStmt() { return func; }
+  | node = assignment() { func.child = node; return func;}
+  | ifStmt() { return func; }
+  | block() { return func; }
 }
 
 
+
 void block():
-{}
 {
-	 < LBRACE > (stmt())* < RBRACE >
+  FunctionalNode root = new FunctionalNode();
+}
+{
+	 < LBRACE > (root=stmt()";")*< RBRACE >
+	 //root.next = stmt();
 }
 
 void printStmt():
 {
-	ExpNode node;
+	Token tok;
 }
 {
-  < PRINT > node=expression()
+  < PRINT > tok=< IDENT >
   {
-    node.traverse();
-    System.out.println();
+    System.out.println(tok.image);
   }
 }
 
@@ -73,7 +79,7 @@ void ifStmt():
 
 
 
-void assignment():
+ExpNode assignment():
 {
   ExpNode root = new ExpNode();
   ExpNode lnode = null;
@@ -87,6 +93,7 @@ void assignment():
     root.left = lnode;
     root.right = rnode;
     root.traverse();
+    return root;
   }
 }
 

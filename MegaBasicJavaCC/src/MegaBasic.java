@@ -38,11 +38,8 @@ public class MegaBasic implements MegaBasicConstants {
 
   static final public int program() throws ParseException {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case PRINT:
-    case IF:
     case LBRACE:
-    case IDENT:
-      stmt();
+      block();
       jj_consume_token(19);
     {if (true) return 0;}
       break;
@@ -58,28 +55,36 @@ public class MegaBasic implements MegaBasicConstants {
     throw new Error("Missing return statement in function");
   }
 
-  static final public void stmt() throws ParseException {
+  static final public FunctionalNode stmt() throws ParseException {
+  FunctionalNode func = new FunctionalNode();
+  ExpNode node;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case PRINT:
       printStmt();
+                {if (true) return func;}
       break;
     case IDENT:
-      assignment();
+      node = assignment();
+                          func.child = node; {if (true) return func;}
       break;
     case IF:
       ifStmt();
+               {if (true) return func;}
       break;
     case LBRACE:
       block();
+              {if (true) return func;}
       break;
     default:
       jj_la1[1] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
+    throw new Error("Missing return statement in function");
   }
 
   static final public void block() throws ParseException {
+  FunctionalNode root = new FunctionalNode();
     jj_consume_token(LBRACE);
     label_1:
     while (true) {
@@ -94,17 +99,17 @@ public class MegaBasic implements MegaBasicConstants {
         jj_la1[2] = jj_gen;
         break label_1;
       }
-      stmt();
+      root = stmt();
+      jj_consume_token(19);
     }
     jj_consume_token(RBRACE);
   }
 
   static final public void printStmt() throws ParseException {
-        ExpNode node;
+        Token tok;
     jj_consume_token(PRINT);
-    node = expression();
-    node.traverse();
-    System.out.println();
+    tok = jj_consume_token(IDENT);
+    System.out.println(tok.image);
   }
 
   static final public void ifStmt() throws ParseException {
@@ -117,7 +122,7 @@ public class MegaBasic implements MegaBasicConstants {
     stmt();
   }
 
-  static final public void assignment() throws ParseException {
+  static final public ExpNode assignment() throws ParseException {
   ExpNode root = new ExpNode();
   ExpNode lnode = null;
   ExpNode rnode = null;
@@ -128,6 +133,8 @@ public class MegaBasic implements MegaBasicConstants {
     root.left = lnode;
     root.right = rnode;
     root.traverse();
+    {if (true) return root;}
+    throw new Error("Missing return statement in function");
   }
 
   static final public ExpNode expression() throws ParseException {
@@ -265,7 +272,7 @@ public class MegaBasic implements MegaBasicConstants {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0xa2c00,0x22c00,0x22c00,0x60,0x60,0x180,0x180,0x128000,};
+      jj_la1_0 = new int[] {0x82000,0x22c00,0x22c00,0x60,0x60,0x180,0x180,0x128000,};
    }
 
   /** Constructor with InputStream. */

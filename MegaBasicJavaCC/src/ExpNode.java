@@ -23,7 +23,14 @@ public class ExpNode {
 	 * Call on root node
 	 */
 	public void traverse() {
-		if(left != null) 
+		if(left != null && left.operator == 'c' && right != null && right.operator == 'c') {
+			operator = 'c';
+			operand = left.operand + right.operand;
+			left = null;
+			right = null;
+		}
+		
+		if(left != null)
 			left.traverse();
 		if(right != null) 
 			right.traverse();
