@@ -1,0 +1,98 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */options{  static = true;}PARSER_BEGIN(GigaBasicParser)
+public class GigaBasicParser{  public static void main(String args []) throws ParseException  {    GigaBasicParser parser = new GigaBasicParser(System.in);    while (true)    {      System.out.println("Enter a program block: ");            try      {	   Stmt program;
+       program = GigaBasicParser.giga_basic();
+       System.out.println("Program: ");
+       program.traverse(1);
+       // Now call the next phase of the compiler
+       // Like the global optimizer then the code generator      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        GigaBasicParser.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(GigaBasicParser)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >}
+TOKEN:
+{
+  < LBRACE : "{" >
+| < RBRACE : "}" >
+| < PRINT : "print" >
+| < ELSE : "else" >
+| < IF : "if" >
+}
+TOKEN :{  < CONSTANT : (< DIGIT >)+ >| < #DIGIT : [ "0"-"9" ] >
+| < #LETTER : ["a"-"z","A"-"Z"] >
+| < IDENT : (< LETTER > (< LETTER >|< DIGIT >)*) >}
+
+
+Stmt giga_basic():
+{
+  Stmt block_link;
+  
+}
+{
+	block_link = block()
+	{
+	  return block_link;
+	}
+}
+
+Stmt block():
+{
+  Stmt statement_link;
+  Stmt block_node = new Stmt();
+  Stmt tail = null;
+  block_node.type = "block";
+}
+{
+ < LBRACE > (statement_link=stmt() ";"
+ {
+   if(block_node.child == null)
+     block_node.child = statement_link;
+   else
+     tail.next = statement_link;
+
+   tail = statement_link;
+ }
+ )*< RBRACE >
+ {
+   return block_node;
+ }
+}
+
+Stmt stmt():
+{
+  Stmt statement;
+}
+{
+  
+(  
+	 statement = block()
+	|statement = assignment()
+	|statement = print_statement()
+)
+ {
+   return statement;
+ }
+}
+
+Stmt assignment():
+{
+  Stmt assign = new Stmt();
+  assign.type = "assignment";
+}
+{
+  < IDENT >
+  {
+    return assign;
+  }
+}
+
+Stmt print_statement():
+{
+  Stmt print = new Stmt();
+  print.type = "print";
+}
+{
+  < PRINT >
+  {
+    return print;
+  }
+}
+
+int one_line() :{}{  sum() ";"  {    return 0;  }| ";"  {    return 1;  }}void sum() :{}{  term()  (    (      < PLUS >    | < MINUS >    )    term()  )*}void term() :{}{  unary()  (    (      < MULTIPLY >    | < DIVIDE >    )    unary()  )*}void unary() :{}{  < MINUS > element()| element()}void element() :{}{  < CONSTANT >| "(" sum() ")"}
