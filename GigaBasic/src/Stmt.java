@@ -1,31 +1,26 @@
 
 public class Stmt {
-	Stmt next;
-	Stmt child;
+	String type;
 	
 	ExpNode expression;
-	String type;
-
+	Stmt child;
+	Stmt next;
+	
 	public void traverse(int level) {
 		indent(level);
-		System.out.println(type);
-		if(child != null) {
-			child.traverse(level+1);			
+		System.out.print(type+": ");
+		if (expression!=null) expression.traverse();
+		System.out.println();
+		if (child!=null) {
+			child.traverse(level+1);
 		}
-		if(next != null) {
+		if (next!=null) {
 			next.traverse(level);
 		}
-		
 	}
-	
-	
-	
 	
 	public void indent(int n) {
-		for(;n>0;n--) {
+		for (;n>0; n--)
 			System.out.print("   ");
-		}
 	}
-	
-	
 }

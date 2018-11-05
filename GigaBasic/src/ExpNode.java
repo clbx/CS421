@@ -1,50 +1,16 @@
-/**
- * 
- * @author buxtonc
- *
- */
-
 
 public class ExpNode {
+	char operation;
+	String operand;
+	ExpNode left=null, right=null;
 	
-	/**
-	 * Can be:
-	 * c if it's a constant
-	 * or an operator (+,-,=,etc.)
-	 */
-	char operator = '\0';   //Holds operators when they're needed
-	String operand;  //Holds operands when they're needed
-	
-	ExpNode left = null;
-	ExpNode right = null;
-	
-	/**
-	 * traverses the tree.
-	 * Call on root node
-	 */
 	public void traverse() {
-		if(left != null && left.operator == 'c' && right != null && right.operator == 'c') {
-			operator = 'c';
-			operand = left.operand + right.operand;
-			left = null;
-			right = null;
-		}
-		
-		if(left != null)
-			left.traverse();
-		if(right != null) 
-			right.traverse();
-		System.out.print(""+this);
+		if (left!=null) left.traverse();
+		if (right!=null) right.traverse();
+		System.out.print(this+" ");
 	}
-	
-	/**
-	 * @return String returns the operator of it was an operator, returns an operand if it was an operand
-	 */
 	public String toString() {
-		if(operator == 'c')
-			return ""+operand;
-		if(operator == '\0')
-			return "";
-		return ""+operator;
+		if (operation=='r' || operation=='c') return operand;
+		return ""+operation;
 	}
 }
