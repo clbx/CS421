@@ -1,27 +1,33 @@
+import java.util.HashMap;
 
-public class SymbolTable {
-	Entry[] table = new Entry[1000];
-	int last = 0;
+public class SymbolTable extends HashMap<String, SymbolTable.Entry>{
 	int location=0;
 	
 	public void add(String name, String type) {
-		table[last] = new Entry();
-		table[last].name = name;
-		table[last].address = location;
-		table[last].dataType = type;
-		last++;
-		if (last>table.length)
-			System.out.println("Error!  Symbol table overflow!!");
-		if (type.equals("int")) 
-			location += 4;
-		else
-			location += 8;
+		Entry entry = new Entry(type);
+		put(name,entry);
 	}
 	
-	private class Entry {
-		String name;
+	// public Entry get(String name);
+	// public boolean containsKey(String name);
+		
+	public class Entry {
+		//String name;
 		String dataType;
 		int address;
 		int size;
+		
+		public Entry(String type) {
+			address = location;
+			dataType = type;
+			if (type.equals("int")) {
+				location += 4;
+				size = 4;
+			}
+			else {
+				location += 8;
+				size = 8;
+			}
+		}
 	}
 }

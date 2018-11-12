@@ -1,36 +1,114 @@
 /**
  * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
- */options{  static = true;
-  ignore_case = true;}PARSER_BEGIN(MiniBasic)
-public class MiniBasic{  public static void main(String args []) throws ParseException  {    MiniBasic parser = new MiniBasic(System.in);    while (true)    {      System.out.println("Reading from standard input...");      System.out.print("Enter a program block");      try      {
-        Stmt program;        program = MiniBasic.giga_basic();
+ */
+options
+{
+  static = true;
+  ignore_case = true;
+}
+
+PARSER_BEGIN(MiniBasic)
+
+public class MiniBasic
+{
+  public static SymbolTable symTable = new SymbolTable();
+
+  public static SymbolTable.Entry findSym(String name) {
+    SymbolTable.Entry entry;
+    entry = symTable.get(name);
+    return entry;
+  }
+  
+  public static void main(String args []) throws ParseException
+  {
+    MiniBasic parser = new MiniBasic(System.in);
+    while (true)
+    {
+      System.out.println("Reading from standard input...");
+      System.out.print("Enter a program block");
+      try
+      {
+        Stmt program;
+        program = MiniBasic.giga_basic();
         System.out.println("Program: ");
         program.traverse(1);
         // Now call the next phase of the compiler
         // Like the global optimizer
-        // Then the code generator      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        MiniBasic.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(MiniBasic)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >
+        // Then the code generator
+      }
+      catch (Exception e)
+      {
+        System.out.println("NOK.");
+        System.out.println(e.getMessage());
+        MiniBasic.ReInit(System.in);
+      }
+      catch (Error e)
+      {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+        break;
+      }
+    }
+  }
+}
+
+PARSER_END(MiniBasic)
+
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN : /* OPERATORS */
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < MULTIPLY : "*" >
+| < DIVIDE : "/" >
 | < LBRACE : "{" >
 | < RBRACE : "}" >
 | < PRINT : "print" >
 | < IF : "if" >
 | < ELSE : "else" >
 | < INT : "int" >
-| < REAL : "real" >}TOKEN :{  < CONSTANT : (< DIGIT >)+ >
-| < IDENT : (< LETTER > (< LETTER >|< DIGIT >)*) >| < #DIGIT : [ "0"-"9" ] >
-| < #LETTER : ["a"-"z","A"-"Z"] >}Stmt giga_basic() :{
+| < REAL : "real" >
+}
+
+TOKEN :
+{
+  < CONSTANT : (< DIGIT >)+ >
+| < IDENT : (< LETTER > (< LETTER >|< DIGIT >)*) >
+| < #DIGIT : [ "0"-"9" ] >
+| < #LETTER : ["a"-"z","A"-"Z"] >
+}
+
+Stmt giga_basic() :
+{
   Stmt block_link;
-}{	block_link = block()
+  for(String name:symTable.keySet()) {
+    SymbolTable.Entry entry = symTable.get(name);
+    System.out.println(name+entry);
+  }
+}
+{
+	block_link = block()
 	{
 	  return block_link;
 	}
-}
+}
+
 Stmt block() :
 {
   Stmt block_node = new Stmt();
   Stmt tail = null;
   Stmt statement_link;
-  block_node.type ="block";  }
-{ < LBRACE > (statement_link = stmt() ";"
+  block_node.type ="block";  
+}
+{
+ < LBRACE > (statement_link = stmt() ";"
 				{ if (statement_link!=null) { 
 				  if (block_node.child==null)
 						block_node.child = statement_link;
@@ -53,14 +131,17 @@ void variable() :
 	( dataType=< INT > | dataType=< REAL > )
 	variableName=< IDENT >
 	{
-		
+		symTable.add(variableName.image, dataType.image);
 	}
 }
 
 Stmt stmt() :
-{	Stmt statement=null;
+{
+	Stmt statement=null;
 }
-{(  	statement = block()
+{
+(
+  	statement = block()
 | 	statement = assignment()
 | 	statement = print_statement()
 | 	statement = if_statement()
