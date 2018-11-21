@@ -29,5 +29,11 @@ public class SymbolTable extends HashMap<String, SymbolTable.Entry>{
 				size = 8;
 			}
 		}
+		
+		public String toString() {
+			String text="";
+			text += " Type: "+dataType+ "  Addr: "+address;
+			return text;
+		}
 	}
 }

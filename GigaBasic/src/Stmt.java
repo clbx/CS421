@@ -4,6 +4,7 @@ public class Stmt {
 	
 	ExpNode expression;
 	Stmt child;
+	Stmt child_else;
 	Stmt next;
 	
 	public void traverse(int level) {
