@@ -20,6 +20,10 @@ public class Basic{
         // Like the global optimizer
         // Then the code generator
         CodeGenerator.walk(program);      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        Basic.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(Basic)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >
+| < EQL : "==" >
+| < NEQ : "!=" >
+| < LSS : "<" >
+| < GTR : ">" >
 | < LBRACE : "{" >
 | < RBRACE : "}" >
 | < PRINT : "print" >
@@ -90,12 +94,19 @@ Stmt if_statement() :
 {
   Stmt statement = new Stmt();
   statement.type="if";
+  Stmt true_statement=null;
+  Stmt false_statement=null;
   ExpNode exp;
 }
 {
 	< IF >  "(" exp=expression() ")"
+			true_statement=stmt()
+		(< ELSE >
+			false_statement=stmt() )?
 	{
 	  statement.expression = exp;
+	  statement.child = true_statement;
+	  statement.child_else = false_statement;
 	  return statement;
 	}
 }
@@ -137,6 +148,32 @@ Stmt assignment() :
 }
 
 ExpNode expression() :
+{ 	ExpNode root,lchild,rchild;
+	Token operator;
+}
+{
+  root=additive_expression()
+  (
+    (
+      operator = < EQL >
+    | operator = < NEQ >
+    | operator = < GTR >
+    | operator = < LSS >
+    )
+    rchild=additive_expression()
+    { lchild = root;
+    	root = new ExpNode();
+    	root.left = lchild;
+    	root.right= rchild;
+    	root.operation = operator.image.charAt(0);
+   }
+    
+  )?
+  {
+    return root;
+  }
+}
+ExpNode additive_expression() :
 { 	ExpNode root,lchild,rchild;
 	Token operator;
 }

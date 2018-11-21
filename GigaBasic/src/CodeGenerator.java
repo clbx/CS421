@@ -85,7 +85,20 @@ public class CodeGenerator {
 
 	private static void ifCode(Stmt t) {
 		System.out.println("If statement");
-
+		Operand condition;
+		Instruction endLabel, elseLabel;
+		condition = mathCode(t.expression);
+		endLabel = genLabel();
+		elseLabel = genLabel();
+		insert(genCode(Opcode.test,condition));
+		insert(genCode(Opcode.jz,new Operand(elseLabel.label)));
+		blockCode(t.child);
+		if (t.child_else!=null) {
+			insert(genCode(Opcode.jmp,new Operand(endLabel.label)));
+			insert(elseLabel);
+			blockCode(t.child_else);
+			insert(endLabel);
+		}
 	}
 
 	private static void expressionCode(Stmt t) {

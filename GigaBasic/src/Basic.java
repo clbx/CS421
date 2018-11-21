@@ -76,7 +76,7 @@ public class Basic implements BasicConstants {
         break label_1;
       }
       statement_link = stmt();
-      jj_consume_token(20);
+      jj_consume_token(24);
                                   if (statement_link!=null) {
                                   if (block_node.child==null)
                                                 block_node.child = statement_link;
@@ -139,12 +139,26 @@ public class Basic implements BasicConstants {
   static final public Stmt if_statement() throws ParseException {
   Stmt statement = new Stmt();
   statement.type="if";
+  Stmt true_statement=null;
+  Stmt false_statement=null;
   ExpNode exp;
     jj_consume_token(IF);
-    jj_consume_token(21);
+    jj_consume_token(25);
     exp = expression();
-    jj_consume_token(22);
+    jj_consume_token(26);
+    true_statement = stmt();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case ELSE:
+      jj_consume_token(ELSE);
+      false_statement = stmt();
+      break;
+    default:
+      jj_la1[3] = jj_gen;
+      ;
+    }
           statement.expression = exp;
+          statement.child = true_statement;
+          statement.child_else = false_statement;
           {if (true) return statement;}
     throw new Error("Missing return statement in function");
   }
@@ -157,11 +171,11 @@ public class Basic implements BasicConstants {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case CONSTANT:
     case IDENT:
-    case 21:
+    case 25:
       exp = expression();
       break;
     default:
-      jj_la1[3] = jj_gen;
+      jj_la1[4] = jj_gen;
       ;
     }
           print.expression = exp;
@@ -176,7 +190,7 @@ public class Basic implements BasicConstants {
         statement.type="assignment";
         statement.expression = asnmnt;
     lvalue = varref();
-    jj_consume_token(23);
+    jj_consume_token(27);
     rvalue = expression();
           //System.out.println("In Assignment");
           asnmnt.operation = '=';
@@ -191,6 +205,48 @@ public class Basic implements BasicConstants {
   static final public ExpNode expression() throws ParseException {
         ExpNode root,lchild,rchild;
         Token operator;
+    root = additive_expression();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case EQL:
+    case NEQ:
+    case LSS:
+    case GTR:
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case EQL:
+        operator = jj_consume_token(EQL);
+        break;
+      case NEQ:
+        operator = jj_consume_token(NEQ);
+        break;
+      case GTR:
+        operator = jj_consume_token(GTR);
+        break;
+      case LSS:
+        operator = jj_consume_token(LSS);
+        break;
+      default:
+        jj_la1[5] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+      rchild = additive_expression();
+      lchild = root;
+        root = new ExpNode();
+        root.left = lchild;
+        root.right= rchild;
+        root.operation = operator.image.charAt(0);
+      break;
+    default:
+      jj_la1[6] = jj_gen;
+      ;
+    }
+    {if (true) return root;}
+    throw new Error("Missing return statement in function");
+  }
+
+  static final public ExpNode additive_expression() throws ParseException {
+        ExpNode root,lchild,rchild;
+        Token operator;
     root = term();
     label_2:
     while (true) {
@@ -200,7 +256,7 @@ public class Basic implements BasicConstants {
         ;
         break;
       default:
-        jj_la1[4] = jj_gen;
+        jj_la1[7] = jj_gen;
         break label_2;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -211,7 +267,7 @@ public class Basic implements BasicConstants {
         operator = jj_consume_token(MINUS);
         break;
       default:
-        jj_la1[5] = jj_gen;
+        jj_la1[8] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -238,7 +294,7 @@ public class Basic implements BasicConstants {
         ;
         break;
       default:
-        jj_la1[6] = jj_gen;
+        jj_la1[9] = jj_gen;
         break label_3;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -249,7 +305,7 @@ public class Basic implements BasicConstants {
         operator = jj_consume_token(DIVIDE);
         break;
       default:
-        jj_la1[7] = jj_gen;
+        jj_la1[10] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -272,11 +328,11 @@ public class Basic implements BasicConstants {
       break;
     case CONSTANT:
     case IDENT:
-    case 21:
+    case 25:
       element();
       break;
     default:
-      jj_la1[8] = jj_gen;
+      jj_la1[11] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -295,13 +351,13 @@ public class Basic implements BasicConstants {
     case IDENT:
       factor = varref();
       break;
-    case 21:
-      jj_consume_token(21);
+    case 25:
+      jj_consume_token(25);
       factor = expression();
-      jj_consume_token(22);
+      jj_consume_token(26);
       break;
     default:
-      jj_la1[9] = jj_gen;
+      jj_la1[12] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -331,13 +387,13 @@ public class Basic implements BasicConstants {
   static public Token jj_nt;
   static private int jj_ntk;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[10];
+  static final private int[] jj_la1 = new int[13];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x2da00,0xc000,0x2da00,0x230000,0x60,0x60,0x180,0x180,0x230040,0x230000,};
+      jj_la1_0 = new int[] {0x2da000,0xc0000,0x2da000,0x20000,0x2300000,0x1e00,0x1e00,0x60,0x60,0x180,0x180,0x2300040,0x2300000,};
    }
 
   /** Constructor with InputStream. */
@@ -358,7 +414,7 @@ public class Basic implements BasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 13; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -372,7 +428,7 @@ public class Basic implements BasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 13; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -389,7 +445,7 @@ public class Basic implements BasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 13; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -399,7 +455,7 @@ public class Basic implements BasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 13; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -415,7 +471,7 @@ public class Basic implements BasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 13; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -424,7 +480,7 @@ public class Basic implements BasicConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 13; i++) jj_la1[i] = -1;
   }
 
   static private Token jj_consume_token(int kind) throws ParseException {
@@ -475,12 +531,12 @@ public class Basic implements BasicConstants {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[24];
+    boolean[] la1tokens = new boolean[28];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 13; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -489,7 +545,7 @@ public class Basic implements BasicConstants {
         }
       }
     }
-    for (int i = 0; i < 24; i++) {
+    for (int i = 0; i < 28; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

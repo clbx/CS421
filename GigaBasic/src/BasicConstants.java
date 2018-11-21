@@ -17,27 +17,35 @@ public interface BasicConstants {
   /** RegularExpression Id. */
   int DIVIDE = 8;
   /** RegularExpression Id. */
-  int LBRACE = 9;
+  int EQL = 9;
   /** RegularExpression Id. */
-  int RBRACE = 10;
+  int NEQ = 10;
   /** RegularExpression Id. */
-  int PRINT = 11;
+  int LSS = 11;
   /** RegularExpression Id. */
-  int IF = 12;
+  int GTR = 12;
   /** RegularExpression Id. */
-  int ELSE = 13;
+  int LBRACE = 13;
   /** RegularExpression Id. */
-  int INT = 14;
+  int RBRACE = 14;
   /** RegularExpression Id. */
-  int REAL = 15;
+  int PRINT = 15;
   /** RegularExpression Id. */
-  int CONSTANT = 16;
+  int IF = 16;
   /** RegularExpression Id. */
-  int IDENT = 17;
+  int ELSE = 17;
   /** RegularExpression Id. */
-  int DIGIT = 18;
+  int INT = 18;
   /** RegularExpression Id. */
-  int LETTER = 19;
+  int REAL = 19;
+  /** RegularExpression Id. */
+  int CONSTANT = 20;
+  /** RegularExpression Id. */
+  int IDENT = 21;
+  /** RegularExpression Id. */
+  int DIGIT = 22;
+  /** RegularExpression Id. */
+  int LETTER = 23;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -53,6 +61,10 @@ public interface BasicConstants {
     "\"-\"",
     "\"*\"",
     "\"/\"",
+    "\"==\"",
+    "\"!=\"",
+    "\"<\"",
+    "\">\"",
     "\"{\"",
     "\"}\"",
     "\"print\"",
