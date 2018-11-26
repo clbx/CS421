@@ -148,21 +148,21 @@ LBB0_3:
 while (a>5) a = a-2;
 
 _main:
-	pushq	%rbp
-	movq	%rsp, %rbp
-	movl	$0, -4(%rbp)
+	pushq	%rbp             //push the stack pointer
+	movq	%rsp, %rbp       //move rsp to the stack pointer
+	movl	$0, -4(%rbp)     //move 0 to the top of the stack
 LBB0_1:
-	cmpl	$5, _a(%rip)
-	jle	LBB0_3
+	cmpl	$5, _a(%rip)     //compare 5 and a
+	jle	LBB0_3             //if its less than or equal, jump out to LBB0_3, breaking the loop
 ## %bb.2:
-	movl	_a(%rip), %eax
-	subl	$2, %eax
-	movl	%eax, _a(%rip)
-	jmp	LBB0_1
+	movl	_a(%rip), %eax   //move a into eax
+	subl	$2, %eax         //subtract 2 from eax
+	movl	%eax, _a(%rip)   //move eax back into a
+	jmp	LBB0_1             //jump back up
 LBB0_3:
-	movl	-4(%rbp), %eax
-	popq	%rbp
-	retq
+	movl	-4(%rbp), %eax  //move stack to eax
+	popq	%rbp            //pop that stack
+	retq                  //return
 
 
 8:
@@ -173,43 +173,41 @@ while (a>5 && b==2) {
 }
 
 _main:
-	pushq	%rbp
-	movq	%rsp, %rbp
-	movl	$0, -4(%rbp)
+	pushq	%rbp             //push stack pointer
+	movq	%rsp, %rbp       //move rsp to stack pointer
+	movl	$0, -4(%rbp)     //move 0 to top to stack
 LBB0_1:
-	xorl	%eax, %eax
-	movb	%al, %cl
-	cmpl	$5, _a(%rip)
-	movb	%cl, -5(%rbp)
-	jle	LBB0_3
+	xorl	%eax, %eax       //xor out eax
+	movb	%al, %cl         //move al into cl
+	cmpl	$5, _a(%rip)     //compare a and 5 for first condition
+	movb	%cl, -5(%rbp)    //move result to stack
+	jle	LBB0_3             //if its less or equal jump to LBB0_3 since it failed
 ## %bb.2:
-	cmpl	$2, _b(%rip)
-	sete	%al
-	movb	%al, -5(%rbp)
+	cmpl	$2, _b(%rip)     //compare 2 and b
+	sete	%al              //set result in al
+	movb	%al, -5(%rbp)    //move al to rbp
 LBB0_3:
-	movb	-5(%rbp), %al
-	testb	$1, %al
-	jne	LBB0_4
-	jmp	LBB0_5
+	movb	-5(%rbp), %al    //put rbp into al
+	testb	$1, %al          //and 1 and al for truth value
+	jne	LBB0_4             //jump to LBB0_4 because it passed
+	jmp	LBB0_5             /jump to LBB0_5
 LBB0_4:
-	movl	$2, %eax
-	movl	_a(%rip), %ecx
-	subl	$2, %ecx
-	movl	%ecx, _a(%rip)
-	movl	_a(%rip), %ecx
-	movl	%eax, -12(%rbp)
-	movl	%ecx, %eax
-	cltd
-	movl	-12(%rbp), %ecx
-	idivl	%ecx
-	movl	%eax, _b(%rip)
-	jmp	LBB0_1
+	movl	$2, %eax        //move 2 to eax
+	movl	_a(%rip), %ecx  //move a to ecx
+	subl	$2, %ecx        //subtract 2 from ecx
+	movl	%ecx, _a(%rip)  //move ecx back into a
+	movl	_a(%rip), %ecx  //move a into ecx
+	movl	%eax, -12(%rbp) //move ecx into rbp
+	movl	%ecx, %eax      //move ecx into eax
+	cltd                  //convert to double
+	movl	-12(%rbp), %ecx //move rbp to ecx
+	idivl	%ecx            //divide the long
+	movl	%eax, _b(%rip)  //move eax to b
+	jmp	LBB0_1            //jump back up
 LBB0_5:
-	movl	-4(%rbp), %eax
-	popq	%rbp
-	retq
-	.cfi_endproc
-
+	movl	-4(%rbp), %eax  //move rbp into eax
+	popq	%rbp            //pop rbp
+	retq                  //return
 
 
 9:
@@ -222,20 +220,20 @@ list[i] = 66;
 
 
 _main:
-	pushq	%rbp
-	movq	%rsp, %rbp
-	subq	$48, %rsp
-	movq	___stack_chk_guard@GOTPCREL(%rip), %rax
+	pushq	%rbp                                       //push rbp
+	movq	%rsp, %rbp                                 //move rsp into rbp
+	subq	$48, %rsp                                  //subtract 48 from rsp for array
+	movq	___stack_chk_guard@GOTPCREL(%rip), %rax    //stack guard?
 	movq	(%rax), %rax
 	movq	%rax, -8(%rbp)
 	movl	$15, -36(%rbp)
 	movslq	-36(%rbp), %rax
-	movb	$65, -32(%rbp,%rax)
+	movb	$65, -32(%rbp,%rax)                       //put 65 into the 15th position
 	movl	-36(%rbp), %ecx
-	addl	$1, %ecx
+	addl	$1, %ecx                                  //The increment
 	movl	%ecx, -36(%rbp)
 	movslq	-36(%rbp), %rax
-	movb	$66, -32(%rbp,%rax)
+	movb	$66, -32(%rbp,%rax)                       //put 66 into the 16th position
 	movq	___stack_chk_guard@GOTPCREL(%rip), %rax
 	movq	(%rax), %rax
 	movq	-8(%rbp), %rdx
@@ -249,4 +247,3 @@ LBB0_2:
 	callq	___stack_chk_fail
 	ud2
 	.cfi_endproc
-
