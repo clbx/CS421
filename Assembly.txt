@@ -223,10 +223,7 @@ _main:
 	pushq	%rbp                                       //push rbp
 	movq	%rsp, %rbp                                 //move rsp into rbp
 	subq	$48, %rsp                                  //subtract 48 from rsp for array
-	movq	___stack_chk_guard@GOTPCREL(%rip), %rax    //stack guard?
-	movq	(%rax), %rax
-	movq	%rax, -8(%rbp)
-	movl	$15, -36(%rbp)
+	movl	$15, -36(%rbp)							  // put I into the stack
 	movslq	-36(%rbp), %rax
 	movb	$65, -32(%rbp,%rax)                       //put 65 into the 15th position
 	movl	-36(%rbp), %ecx
@@ -234,16 +231,5 @@ _main:
 	movl	%ecx, -36(%rbp)
 	movslq	-36(%rbp), %rax
 	movb	$66, -32(%rbp,%rax)                       //put 66 into the 16th position
-	movq	___stack_chk_guard@GOTPCREL(%rip), %rax
-	movq	(%rax), %rax
-	movq	-8(%rbp), %rdx
 	cmpq	%rdx, %rax
-	jne	LBB0_2
-	xorl	%eax, %eax
-	addq	$48, %rsp
-	popq	%rbp
 	retq
-LBB0_2:
-	callq	___stack_chk_fail
-	ud2
-	.cfi_endproc
