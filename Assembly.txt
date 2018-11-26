@@ -1,0 +1,252 @@
+1:
+
+bool f;
+f = a+b > c+d;
+
+movl	_a(%rip), %ecx   //  This moves a into the register ecx
+addl	_b(%rip), %ecx   //  This adds b to ecx finishing 'a + b'
+movl	_c(%rip), %edx   //  This moves c into edx
+addl	_d(%rip), %edx   //  This adds d to c in edx
+cmpl	%edx, %ecx       //  This than compares
+setg	%sil             //  and sets the SIL register if its greater
+andb	$1, %sil         //  logical and between 1 and the SIL register to check if the SIL register is true
+movzbl	%sil, %ecx     //  move the sil register to ecx, and convert it to long
+movl	%ecx, -4(%rbp)   //  move ecx to the stack
+popq	%rbp             //  pop the rbp stack
+
+
+2:
+
+f = (a>b) && (c<d);
+
+_main:
+	movb	%al, %cl          // move byte al into cl
+	movl	$0, -4(%rbp)      // move 0 into rbp stack
+	movl	_a(%rip), %eax    // move a into eax
+	cmpl	_b(%rip), %eax    // compare b with eax (a)
+	movb	%cl, -9(%rbp)     // move byte cl to the top of the stack
+	jle	LBB0_2              // if its less or equal, it's failed the first condition so it can't continue
+	movl	_c(%rip), %eax    // otherwise move c into eax
+	cmpl	_d(%rip), %eax    // compare d with eax (c)
+	setl	%cl               // set byte cl with the result
+	movb	%cl, -9(%rbp)     // move byte cl to the top of the stack
+LBB0_2:                   // on fail condition
+	movb	-9(%rbp), %al     //move the byte on the top of the stack to al
+	andb	$1, %al           //put true value into al
+	movzbl	%al, %ecx       //move byte al to long ecx
+	movl	%ecx, -8(%rbp)    //put long at top of stack
+	movl	-4(%rbp), %eax    //move top of stack to eax
+	popq	%rbp              //pop stack
+	retq                    //return
+
+3:
+
+f = (a == b) || (c != d);
+
+_main:                    //
+	pushq	%rbp              //
+	movq	%rsp, %rbp        //
+	movb	$1, %al           // move "true" into al register
+	movl	$0, -4(%rbp)      // move 0 value to top of stack
+	movl	_a(%rip), %ecx    // move a into ecx
+	cmpl	_b(%rip), %ecx    // compare b and ecx(a)
+	movb	%al, -9(%rbp)     // move byte al to top of stack
+	je	LBB0_2              // check if it's equal, if it is then we're good and we can jump to LBB0_2 and return true
+	movl	_c(%rip), %eax    // move c into eax
+	cmpl	_d(%rip), %eax    // compare d and eax (c)
+	setne	%cl               // sets operand byte to value based on cl value
+	movb	%cl, -9(%rbp)     // move cl into the top of the stack
+LBB0_2:                   //
+	movb	-9(%rbp), %al     // put true/false byte value into register al%
+	andb	$1, %al           // and it with 1 to get a boolean output
+	movzbl	%al, %ecx       // move byte al into long %ecx
+	movl	%ecx, -8(%rbp)    // put it on the stack
+	movl	-4(%rbp), %eax    // put it into eax
+	popq	%rbp              // pop the stack
+	retq                    // return
+	.cfi_endproc            //
+
+
+4:
+
+f = (a == b) || (c != d) && (e <= f);
+
+_main:
+
+	pushq	%rbp             // push stack pointer
+	movq	%rsp, %rbp       // move rsp to stack pointer
+	movb	$1, %al          // move true (1) into %al
+	movl	$0, -4(%rbp)     // put 0 at the top of the stack
+	movl	_a(%rip), %ecx   // move a into ecx
+	cmpl	_b(%rip), %ecx   // compare a and b
+	movb	%al, -9(%rbp)    // move result to top of stack
+	je	LBB0_4             // if it equals, jump to LBB0_4 where it's done
+	xorl	%eax, %eax       // xor out eax
+	movb	%al, %cl         // move al to cl
+	movl	_c(%rip), %eax   // move c into eax
+	cmpl	_d(%rip), %eax   // compare c and d
+	movb	%cl, -10(%rbp)   // move result to stack
+	je	LBB0_3             // if it's equal jump to end LBB0_3
+	movl	_e(%rip), %eax   // move e into eax
+	cmpl	-8(%rbp), %eax   // compare with f, but since f isnt really defined, get memory
+	setle	%cl              // set cl to comparison output
+	movb	%cl, -10(%rbp)   // move it to the stack
+LBB0_3:                  //
+	movb	-10(%rbp), %al   // move top of stack to al
+	movb	%al, -9(%rbp)    // move al to top of stack (minus a byte)
+LBB0_4:                  //
+	movb	-9(%rbp), %al    // move top of stack to al
+	andb	$1, %al          // and 1 and al to get truth value
+	movzbl	%al, %ecx      // move byte al into long ecx
+	movl	%ecx, -8(%rbp)   // put it on the stack
+	movl	-4(%rbp), %eax   // put the 4 top bytes in eax
+	popq	%rbp             // pop the stack
+	retq                   // return
+
+
+
+5:
+
+if (a>5)  a=0;
+
+_main:
+	pushq	%rbp           //push stack pointer
+	movq	%rsp, %rbp     //move rsp to stack pointer
+	movl	$0, -4(%rbp)   // move 0 to top of stack
+	cmpl	$5, _a(%rip)   //compare 5 and a
+	jle	LBB0_2           //if its less than or equal jump, cause it failed
+	movl	$0, _a(%rip)   //otherwise move 0 into a
+LBB0_2:
+	movl	-4(%rbp), %eax //move top of stack to eax
+	popq	%rbp           //pop the stack
+	retq                 //return
+
+6:
+
+if (a>5)
+  b=3;
+else
+  b=10;
+
+_main:
+	pushq	%rbp             //push stack pointer
+	movq	%rsp, %rbp       //move rsp to stack pointer
+	movl	$0, -4(%rbp)     //put 0 at top of stack
+	cmpl	$5, _a(%rip)     //compare 5 and a
+	jle	LBB0_2             //if it failes, jump to LBB0_2
+	movl	$3, _b(%rip)     //otherwise set b to 3 and then jump ti LBB0_3 for cleanup
+	jmp	LBB0_3
+LBB0_2:
+	movl	$10, _b(%rip)    //set b to 10
+LBB0_3:
+	movl	-4(%rbp), %eax   //cleanup
+	popq	%rbp
+	retq
+
+7:
+
+while (a>5) a = a-2;
+
+_main:
+	pushq	%rbp
+	movq	%rsp, %rbp
+	movl	$0, -4(%rbp)
+LBB0_1:
+	cmpl	$5, _a(%rip)
+	jle	LBB0_3
+## %bb.2:
+	movl	_a(%rip), %eax
+	subl	$2, %eax
+	movl	%eax, _a(%rip)
+	jmp	LBB0_1
+LBB0_3:
+	movl	-4(%rbp), %eax
+	popq	%rbp
+	retq
+
+
+8:
+
+while (a>5 && b==2) {
+  a = a-2;
+  b = a/2;
+}
+
+_main:
+	pushq	%rbp
+	movq	%rsp, %rbp
+	movl	$0, -4(%rbp)
+LBB0_1:
+	xorl	%eax, %eax
+	movb	%al, %cl
+	cmpl	$5, _a(%rip)
+	movb	%cl, -5(%rbp)
+	jle	LBB0_3
+## %bb.2:
+	cmpl	$2, _b(%rip)
+	sete	%al
+	movb	%al, -5(%rbp)
+LBB0_3:
+	movb	-5(%rbp), %al
+	testb	$1, %al
+	jne	LBB0_4
+	jmp	LBB0_5
+LBB0_4:
+	movl	$2, %eax
+	movl	_a(%rip), %ecx
+	subl	$2, %ecx
+	movl	%ecx, _a(%rip)
+	movl	_a(%rip), %ecx
+	movl	%eax, -12(%rbp)
+	movl	%ecx, %eax
+	cltd
+	movl	-12(%rbp), %ecx
+	idivl	%ecx
+	movl	%eax, _b(%rip)
+	jmp	LBB0_1
+LBB0_5:
+	movl	-4(%rbp), %eax
+	popq	%rbp
+	retq
+	.cfi_endproc
+
+
+
+9:
+
+char list[20];
+int I = 15;
+list[i] = 65;
+i++;
+list[i] = 66;
+
+
+_main:
+	pushq	%rbp
+	movq	%rsp, %rbp
+	subq	$48, %rsp
+	movq	___stack_chk_guard@GOTPCREL(%rip), %rax
+	movq	(%rax), %rax
+	movq	%rax, -8(%rbp)
+	movl	$15, -36(%rbp)
+	movslq	-36(%rbp), %rax
+	movb	$65, -32(%rbp,%rax)
+	movl	-36(%rbp), %ecx
+	addl	$1, %ecx
+	movl	%ecx, -36(%rbp)
+	movslq	-36(%rbp), %rax
+	movb	$66, -32(%rbp,%rax)
+	movq	___stack_chk_guard@GOTPCREL(%rip), %rax
+	movq	(%rax), %rax
+	movq	-8(%rbp), %rdx
+	cmpq	%rdx, %rax
+	jne	LBB0_2
+	xorl	%eax, %eax
+	addq	$48, %rsp
+	popq	%rbp
+	retq
+LBB0_2:
+	callq	___stack_chk_fail
+	ud2
+	.cfi_endproc
+
