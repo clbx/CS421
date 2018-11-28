@@ -33,19 +33,21 @@ public interface BasicConstants {
   /** RegularExpression Id. */
   int IF = 16;
   /** RegularExpression Id. */
-  int ELSE = 17;
+  int WHILE = 17;
   /** RegularExpression Id. */
-  int INT = 18;
+  int ELSE = 18;
   /** RegularExpression Id. */
-  int REAL = 19;
+  int INT = 19;
   /** RegularExpression Id. */
-  int CONSTANT = 20;
+  int REAL = 20;
   /** RegularExpression Id. */
-  int IDENT = 21;
+  int CONSTANT = 21;
   /** RegularExpression Id. */
-  int DIGIT = 22;
+  int IDENT = 22;
   /** RegularExpression Id. */
-  int LETTER = 23;
+  int DIGIT = 23;
+  /** RegularExpression Id. */
+  int LETTER = 24;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -69,6 +71,7 @@ public interface BasicConstants {
     "\"}\"",
     "\"print\"",
     "\"if\"",
+    "\"while\"",
     "\"else\"",
     "\"int\"",
     "\"real\"",

@@ -7,9 +7,11 @@ public class CodeGenerator {
 	private final static int maxreg=4;
 	private final static int reglimit=1;
 	private static int regcount=maxreg;
+	private static SymbolTable symTable;
 
-	public static void walk(Stmt tree) {
+	public static void walk(Stmt tree, SymbolTable table) {
 		System.out.println("\n\nWalking the Tree\n");
+		symTable = table;
 		freeRegisters();
 		//System.out.println("Class "+tree.name);
 		//printSymbolTable(tree.name,tree.symtable);
@@ -62,14 +64,14 @@ public class CodeGenerator {
 		System.out.println("While statement");
 		printExpressionTree(t.expression,2);
 
-//		Instruction topLabel = genLabel("WhileLoop");
-		Instruction topLabel = genLabel();
+		Instruction topLabel = genLabel("WhileLoop");
+//		Instruction topLabel = genLabel();
 		Operand topref = new Operand(topLabel.label);
-//		Instruction botLabel = genLabel("WhileEnd");
-		Instruction botLabel = genLabel();
+		Instruction botLabel = genLabel("WhileEnd");
+//		Instruction botLabel = genLabel();
 		Operand botref = new Operand(botLabel.label);
-//		Instruction testLabel =  genLabel("WhileTest");
-		Instruction testLabel =  genLabel();
+		Instruction testLabel =  genLabel("WhileTest");
+//		Instruction testLabel =  genLabel();
 		Operand testref = new Operand(testLabel.label);
 		Operand condition;
 
@@ -123,7 +125,16 @@ public class CodeGenerator {
 		System.out.print("*mathCode* - "+root.operation+" ");
 		switch (root.operation) {
 		case 'r':		// Reference to a variable
-			src = new Operand(root);
+			SymbolTable.Entry symentry;
+			symentry=symTable.get(root.operand);
+			if (symentry==null) {
+				System.out.println("Undefined variable: "+root.operand);
+				return null;
+			}
+			String name = root.operand;
+			DataType dataType = symentry.dataType;
+			int size = symentry.size;
+			src = new Operand(name,dataType,size);
 			System.out.println(root.operand);
 			return src;
 		case 'c':		// Constant
@@ -133,6 +144,8 @@ public class CodeGenerator {
 		}
 		dst = mathCode(root.left);
 		src = mathCode(root.right);
+		if (dst.type!=src.type)
+			System.out.println("Type missmatch of operands");
 		opcode = makeOpcode(root.operation);
 		System.out.println("   Operation: "+opcode+"  "+src.value+"  "+dst.label);
 		switch (opcode) {

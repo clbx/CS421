@@ -19,6 +19,10 @@ public class Operand {
 		}
 		switch (sym.operation) {
 		case 'r':
+			//  Look the variable name up in the symbol table
+			
+			//  Set the data type based on the symbol table entry
+			
 			type = DataType.inttype;
 			size = 4;
 			label = sym.operand;
@@ -38,6 +42,13 @@ public class Operand {
 		default:
 			System.out.println("Illegal use of identifier in operand");
 		}
+	}
+	public Operand(String variableName, DataType type, int size) {
+			
+			this.type = type;
+			this.size = size;
+			label = variableName;
+			mode = AddrMode.abs;
 	}
 	
 	public Operand(String label) {

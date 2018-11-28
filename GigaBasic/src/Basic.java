@@ -26,7 +26,7 @@ public class Basic implements BasicConstants {
         // Now call the next phase of the compiler
         // Like the global optimizer
         // Then the code generator
-        CodeGenerator.walk(program);
+        CodeGenerator.walk(program,symTable);
       }
       catch (Exception e)
       {
@@ -66,6 +66,7 @@ public class Basic implements BasicConstants {
       case LBRACE:
       case PRINT:
       case IF:
+      case WHILE:
       case INT:
       case REAL:
       case IDENT:
@@ -76,7 +77,7 @@ public class Basic implements BasicConstants {
         break label_1;
       }
       statement_link = stmt();
-      jj_consume_token(24);
+      jj_consume_token(25);
                                   if (statement_link!=null) {
                                   if (block_node.child==null)
                                                 block_node.child = statement_link;
@@ -123,6 +124,9 @@ public class Basic implements BasicConstants {
     case IF:
       statement = if_statement();
       break;
+    case WHILE:
+      statement = while_statement();
+      break;
     case INT:
     case REAL:
       variable();
@@ -136,6 +140,12 @@ public class Basic implements BasicConstants {
     throw new Error("Missing return statement in function");
   }
 
+  static final public Stmt while_statement() throws ParseException {
+    jj_consume_token(WHILE);
+          {if (true) return null;}
+    throw new Error("Missing return statement in function");
+  }
+
   static final public Stmt if_statement() throws ParseException {
   Stmt statement = new Stmt();
   statement.type="if";
@@ -143,9 +153,9 @@ public class Basic implements BasicConstants {
   Stmt false_statement=null;
   ExpNode exp;
     jj_consume_token(IF);
-    jj_consume_token(25);
-    exp = expression();
     jj_consume_token(26);
+    exp = expression();
+    jj_consume_token(27);
     true_statement = stmt();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case ELSE:
@@ -171,7 +181,7 @@ public class Basic implements BasicConstants {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case CONSTANT:
     case IDENT:
-    case 25:
+    case 26:
       exp = expression();
       break;
     default:
@@ -190,7 +200,7 @@ public class Basic implements BasicConstants {
         statement.type="assignment";
         statement.expression = asnmnt;
     lvalue = varref();
-    jj_consume_token(27);
+    jj_consume_token(28);
     rvalue = expression();
           //System.out.println("In Assignment");
           asnmnt.operation = '=';
@@ -328,7 +338,7 @@ public class Basic implements BasicConstants {
       break;
     case CONSTANT:
     case IDENT:
-    case 25:
+    case 26:
       element();
       break;
     default:
@@ -351,10 +361,10 @@ public class Basic implements BasicConstants {
     case IDENT:
       factor = varref();
       break;
-    case 25:
-      jj_consume_token(25);
-      factor = expression();
+    case 26:
       jj_consume_token(26);
+      factor = expression();
+      jj_consume_token(27);
       break;
     default:
       jj_la1[12] = jj_gen;
@@ -393,7 +403,7 @@ public class Basic implements BasicConstants {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x2da000,0xc0000,0x2da000,0x20000,0x2300000,0x1e00,0x1e00,0x60,0x60,0x180,0x180,0x2300040,0x2300000,};
+      jj_la1_0 = new int[] {0x5ba000,0x180000,0x5ba000,0x40000,0x4600000,0x1e00,0x1e00,0x60,0x60,0x180,0x180,0x4600040,0x4600000,};
    }
 
   /** Constructor with InputStream. */
@@ -531,7 +541,7 @@ public class Basic implements BasicConstants {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[28];
+    boolean[] la1tokens = new boolean[29];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -545,7 +555,7 @@ public class Basic implements BasicConstants {
         }
       }
     }
-    for (int i = 0; i < 28; i++) {
+    for (int i = 0; i < 29; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

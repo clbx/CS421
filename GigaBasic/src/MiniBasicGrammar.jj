@@ -19,7 +19,7 @@ public class Basic{
         // Now call the next phase of the compiler
         // Like the global optimizer
         // Then the code generator
-        CodeGenerator.walk(program);      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        Basic.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(Basic)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >
+        CodeGenerator.walk(program,symTable);      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        Basic.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(Basic)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >
 | < EQL : "==" >
 | < NEQ : "!=" >
 | < LSS : "<" >
@@ -28,6 +28,7 @@ public class Basic{
 | < RBRACE : "}" >
 | < PRINT : "print" >
 | < IF : "if" >
+| < WHILE : "while" >
 | < ELSE : "else" >
 | < INT : "int" >
 | < REAL : "real" >}TOKEN :{  < CONSTANT : (< DIGIT >)+ >
@@ -83,10 +84,22 @@ Stmt stmt() :
 | 	statement = assignment()
 | 	statement = print_statement()
 | 	statement = if_statement()
+|   statement = while_statement()
 |   variable()
 )
 	{
 		return statement;
+	}
+}
+
+Stmt while_statement() :
+{
+
+}
+{
+	< WHILE >
+	{
+	  return null;
 	}
 }
 
