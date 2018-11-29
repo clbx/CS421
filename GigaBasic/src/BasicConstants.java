@@ -25,29 +25,33 @@ public interface BasicConstants {
   /** RegularExpression Id. */
   int GTR = 12;
   /** RegularExpression Id. */
-  int LBRACE = 13;
+  int LEQ = 13;
   /** RegularExpression Id. */
-  int RBRACE = 14;
+  int GEQ = 14;
   /** RegularExpression Id. */
-  int PRINT = 15;
+  int LBRACE = 15;
   /** RegularExpression Id. */
-  int IF = 16;
+  int RBRACE = 16;
   /** RegularExpression Id. */
-  int WHILE = 17;
+  int PRINT = 17;
   /** RegularExpression Id. */
-  int ELSE = 18;
+  int IF = 18;
   /** RegularExpression Id. */
-  int INT = 19;
+  int ELSE = 19;
   /** RegularExpression Id. */
-  int REAL = 20;
+  int INT = 20;
   /** RegularExpression Id. */
-  int CONSTANT = 21;
+  int REAL = 21;
   /** RegularExpression Id. */
-  int IDENT = 22;
+  int WHILE = 22;
   /** RegularExpression Id. */
-  int DIGIT = 23;
+  int CONSTANT = 23;
   /** RegularExpression Id. */
-  int LETTER = 24;
+  int IDENT = 24;
+  /** RegularExpression Id. */
+  int DIGIT = 25;
+  /** RegularExpression Id. */
+  int LETTER = 26;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -67,14 +71,16 @@ public interface BasicConstants {
     "\"!=\"",
     "\"<\"",
     "\">\"",
+    "\"<=\"",
+    "\">=\"",
     "\"{\"",
     "\"}\"",
     "\"print\"",
     "\"if\"",
-    "\"while\"",
     "\"else\"",
     "\"int\"",
     "\"real\"",
+    "\"while\"",
     "<CONSTANT>",
     "<IDENT>",
     "<DIGIT>",

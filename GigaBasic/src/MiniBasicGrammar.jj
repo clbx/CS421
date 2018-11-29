@@ -19,19 +19,21 @@ public class Basic{
         // Now call the next phase of the compiler
         // Like the global optimizer
         // Then the code generator
-        CodeGenerator.walk(program,symTable);      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        Basic.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(Basic)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >
+        CodeGenerator.walk(program);      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        Basic.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(Basic)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >
 | < EQL : "==" >
 | < NEQ : "!=" >
 | < LSS : "<" >
 | < GTR : ">" >
+| < LEQ : "<=" >
+| < GEQ : ">=" >
 | < LBRACE : "{" >
 | < RBRACE : "}" >
 | < PRINT : "print" >
 | < IF : "if" >
-| < WHILE : "while" >
 | < ELSE : "else" >
 | < INT : "int" >
-| < REAL : "real" >}TOKEN :{  < CONSTANT : (< DIGIT >)+ >
+| < REAL : "real" >
+| < WHILE : "while" >}TOKEN :{  < CONSTANT : (< DIGIT >)+ >
 | < IDENT : (< LETTER > (< LETTER >|< DIGIT >)*) >| < #DIGIT : [ "0"-"9" ] >
 | < #LETTER : ["a"-"z","A"-"Z"] >}Stmt giga_basic() :{
   Stmt block_link;
@@ -96,33 +98,35 @@ Stmt while_statement() :
 {
   Stmt statement = new Stmt();
   statement.type = "while";
-  Stmt true_statement= null;
   ExpNode exp;
-
+  
+  Stmt body = null;
 }
 {
-	< WHILE >"(" exp=expression() ")"
-		true_statement=stmt()
-	{
-	  statement.expression = exp;
-	  statement.child = true_statement;
-	  return statement;
-	}
+  < WHILE > "(" exp = comparativeExpression() ")"
+  		body = block()
+
+  		{
+			statement.expression = exp;
+			statement.child = body;
+			return statement;
+  		}
 }
 
 Stmt if_statement() :
 {
   Stmt statement = new Stmt();
   statement.type="if";
-  Stmt true_statement=null;
-  Stmt false_statement=null;
   ExpNode exp;
+
+  Stmt true_statement = null;
+  Stmt false_statement = null;
 }
 {
-	< IF >  "(" exp=expression() ")"
-			true_statement=stmt()
+	< IF >  "(" exp=comparativeExpression() ")"
+		true_statement = stmt()
 		(< ELSE >
-			false_statement=stmt() )?
+	    	false_statement = stmt())?		//DON'T PUT ; BEFORE AN ELSE
 	{
 	  statement.expression = exp;
 	  statement.child = true_statement;
@@ -139,7 +143,7 @@ Stmt print_statement() :
   ExpNode exp=null;
 }
 {
-	< PRINT > (exp=expression() )?
+	< PRINT > (exp=comparativeExpression() )?
 	{
 	  print.expression = exp;
 	  return print;
@@ -155,7 +159,7 @@ Stmt assignment() :
   	statement.expression = asnmnt;
 }
 {
-	lvalue=varref() "=" rvalue=expression()
+	lvalue=varref() "=" rvalue=comparativeExpression()
 	{
 	  //System.out.println("In Assignment");
 	  asnmnt.operation = '=';
@@ -167,25 +171,25 @@ Stmt assignment() :
 	}
 }
 
-ExpNode expression() :
+ExpNode comparativeExpression() :
 { 	ExpNode root,lchild,rchild;
 	Token operator;
 }
 {
-  root=additive_expression()
+  root=additiveExpression()
   (
     (
       operator = < EQL >
     | operator = < NEQ >
-    | operator = < GTR >
     | operator = < LSS >
+    | operator = < GTR >
     )
-    rchild=additive_expression()
+    rchild=additiveExpression()
     { lchild = root;
     	root = new ExpNode();
     	root.left = lchild;
     	root.right= rchild;
-    	root.operation = operator.image.charAt(0);
+    	root.operation = operator.image.charAt(0);		//Doesn't work for comparison operators with more than one character
    }
     
   )?
@@ -193,7 +197,8 @@ ExpNode expression() :
     return root;
   }
 }
-ExpNode additive_expression() :
+
+ExpNode additiveExpression() :
 { 	ExpNode root,lchild,rchild;
 	Token operator;
 }
@@ -264,7 +269,7 @@ ExpNode element() :
   	}
   	)
 	| factor=varref()
-	| "(" factor=expression() ")"
+	| "(" factor=comparativeExpression() ")"
   )
 {
   return factor;

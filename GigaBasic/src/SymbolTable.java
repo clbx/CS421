@@ -13,28 +13,20 @@ public class SymbolTable extends HashMap<String, SymbolTable.Entry>{
 		
 	public class Entry {
 		//String name;
-		DataType dataType;
+		String dataType;
 		int address;
 		int size;
 		
 		public Entry(String type) {
 			address = location;
-			switch (type) {
-			case "int":
-				dataType = DataType.inttype;
+			dataType = type;
+			if (type.equals("int")) {
 				location += 4;
 				size = 4;
-				break;
-			case "real": 
-				dataType = DataType.realtype;
+			}
+			else {
 				location += 8;
 				size = 8;
-				break;
-			case "bool":
-				dataType = DataType.booleantype;
-				location += 4;
-				size = 1;
-				break;
 			}
 		}
 		

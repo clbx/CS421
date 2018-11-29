@@ -2,7 +2,7 @@
 public class Instruction {
 	String	label = "";	
 	Opcode	opcode = Opcode.none;
-	int	size=0;
+	int size = 0;
 	Operand	src = null;
 	Operand	dst = null;
 	String	comment = "";

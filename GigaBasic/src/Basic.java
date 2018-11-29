@@ -26,7 +26,7 @@ public class Basic implements BasicConstants {
         // Now call the next phase of the compiler
         // Like the global optimizer
         // Then the code generator
-        CodeGenerator.walk(program,symTable);
+        CodeGenerator.walk(program);
       }
       catch (Exception e)
       {
@@ -66,9 +66,9 @@ public class Basic implements BasicConstants {
       case LBRACE:
       case PRINT:
       case IF:
-      case WHILE:
       case INT:
       case REAL:
+      case WHILE:
       case IDENT:
         ;
         break;
@@ -77,7 +77,7 @@ public class Basic implements BasicConstants {
         break label_1;
       }
       statement_link = stmt();
-      jj_consume_token(25);
+      jj_consume_token(27);
                                   if (statement_link!=null) {
                                   if (block_node.child==null)
                                                 block_node.child = statement_link;
@@ -141,21 +141,33 @@ public class Basic implements BasicConstants {
   }
 
   static final public Stmt while_statement() throws ParseException {
+  Stmt statement = new Stmt();
+  statement.type = "while";
+  ExpNode exp;
+
+  Stmt body = null;
     jj_consume_token(WHILE);
-          {if (true) return null;}
+    jj_consume_token(28);
+    exp = comparativeExpression();
+    jj_consume_token(29);
+    body = block();
+                        statement.expression = exp;
+                        statement.child = body;
+                        {if (true) return statement;}
     throw new Error("Missing return statement in function");
   }
 
   static final public Stmt if_statement() throws ParseException {
   Stmt statement = new Stmt();
   statement.type="if";
-  Stmt true_statement=null;
-  Stmt false_statement=null;
   ExpNode exp;
+
+  Stmt true_statement = null;
+  Stmt false_statement = null;
     jj_consume_token(IF);
-    jj_consume_token(26);
-    exp = expression();
-    jj_consume_token(27);
+    jj_consume_token(28);
+    exp = comparativeExpression();
+    jj_consume_token(29);
     true_statement = stmt();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case ELSE:
@@ -181,8 +193,8 @@ public class Basic implements BasicConstants {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case CONSTANT:
     case IDENT:
-    case 26:
-      exp = expression();
+    case 28:
+      exp = comparativeExpression();
       break;
     default:
       jj_la1[4] = jj_gen;
@@ -200,8 +212,8 @@ public class Basic implements BasicConstants {
         statement.type="assignment";
         statement.expression = asnmnt;
     lvalue = varref();
-    jj_consume_token(28);
-    rvalue = expression();
+    jj_consume_token(30);
+    rvalue = comparativeExpression();
           //System.out.println("In Assignment");
           asnmnt.operation = '=';
           asnmnt.left = lvalue;
@@ -212,10 +224,10 @@ public class Basic implements BasicConstants {
     throw new Error("Missing return statement in function");
   }
 
-  static final public ExpNode expression() throws ParseException {
+  static final public ExpNode comparativeExpression() throws ParseException {
         ExpNode root,lchild,rchild;
         Token operator;
-    root = additive_expression();
+    root = additiveExpression();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case EQL:
     case NEQ:
@@ -228,23 +240,24 @@ public class Basic implements BasicConstants {
       case NEQ:
         operator = jj_consume_token(NEQ);
         break;
-      case GTR:
-        operator = jj_consume_token(GTR);
-        break;
       case LSS:
         operator = jj_consume_token(LSS);
+        break;
+      case GTR:
+        operator = jj_consume_token(GTR);
         break;
       default:
         jj_la1[5] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-      rchild = additive_expression();
+      rchild = additiveExpression();
       lchild = root;
         root = new ExpNode();
         root.left = lchild;
         root.right= rchild;
-        root.operation = operator.image.charAt(0);
+        root.operation = operator.image.charAt(0);              //Doesn't work for comparison operators with more than one character
+
       break;
     default:
       jj_la1[6] = jj_gen;
@@ -254,7 +267,7 @@ public class Basic implements BasicConstants {
     throw new Error("Missing return statement in function");
   }
 
-  static final public ExpNode additive_expression() throws ParseException {
+  static final public ExpNode additiveExpression() throws ParseException {
         ExpNode root,lchild,rchild;
         Token operator;
     root = term();
@@ -338,7 +351,7 @@ public class Basic implements BasicConstants {
       break;
     case CONSTANT:
     case IDENT:
-    case 26:
+    case 28:
       element();
       break;
     default:
@@ -361,10 +374,10 @@ public class Basic implements BasicConstants {
     case IDENT:
       factor = varref();
       break;
-    case 26:
-      jj_consume_token(26);
-      factor = expression();
-      jj_consume_token(27);
+    case 28:
+      jj_consume_token(28);
+      factor = comparativeExpression();
+      jj_consume_token(29);
       break;
     default:
       jj_la1[12] = jj_gen;
@@ -403,7 +416,7 @@ public class Basic implements BasicConstants {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x5ba000,0x180000,0x5ba000,0x40000,0x4600000,0x1e00,0x1e00,0x60,0x60,0x180,0x180,0x4600040,0x4600000,};
+      jj_la1_0 = new int[] {0x1768000,0x300000,0x1768000,0x80000,0x11800000,0x1e00,0x1e00,0x60,0x60,0x180,0x180,0x11800040,0x11800000,};
    }
 
   /** Constructor with InputStream. */
@@ -541,7 +554,7 @@ public class Basic implements BasicConstants {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[29];
+    boolean[] la1tokens = new boolean[31];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -555,7 +568,7 @@ public class Basic implements BasicConstants {
         }
       }
     }
-    for (int i = 0; i < 29; i++) {
+    for (int i = 0; i < 31; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

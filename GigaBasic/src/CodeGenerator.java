@@ -4,14 +4,12 @@ public class CodeGenerator {
 	private static Instruction head = null, tail = null;
 	private static int labelCount=1;
 	private static boolean[] registers = new boolean[16];
-	private final static int maxreg=4;
-	private final static int reglimit=1;
+	private final static int maxreg=16;
+	private final static int reglimit=2;
 	private static int regcount=maxreg;
-	private static SymbolTable symTable;
 
-	public static void walk(Stmt tree, SymbolTable table) {
+	public static void walk(Stmt tree) {
 		System.out.println("\n\nWalking the Tree\n");
-		symTable = table;
 		freeRegisters();
 		//System.out.println("Class "+tree.name);
 		//printSymbolTable(tree.name,tree.symtable);
@@ -53,24 +51,28 @@ public class CodeGenerator {
 			case "if":
 				ifCode(stmt);
 				break;
+			case "block":
+				stmt = stmt.child;
+				blockCode(stmt);
+				break;
 			default:
-				System.out.println("     Unimplemented stmt - "+stmt.type);
+				System.out.println("     Unimplemented stmt - "+ stmt.type);
 			}
 			stmt = stmt.next;
 		}
 	}
-		
+
 	private static void whileCode(Stmt t) {
 		System.out.println("While statement");
 		printExpressionTree(t.expression,2);
 
-		Instruction topLabel = genLabel("WhileLoop");
+				Instruction topLabel = genLabel("WhileLoop");
 //		Instruction topLabel = genLabel();
 		Operand topref = new Operand(topLabel.label);
-		Instruction botLabel = genLabel("WhileEnd");
+				Instruction botLabel = genLabel("WhileEnd");
 //		Instruction botLabel = genLabel();
 		Operand botref = new Operand(botLabel.label);
-		Instruction testLabel =  genLabel("WhileTest");
+				Instruction testLabel =  genLabel("WhileTest");
 //		Instruction testLabel =  genLabel();
 		Operand testref = new Operand(testLabel.label);
 		Operand condition;
@@ -89,18 +91,29 @@ public class CodeGenerator {
 		System.out.println("If statement");
 		Operand condition;
 		Instruction endLabel, elseLabel;
+
 		condition = mathCode(t.expression);
 		endLabel = genLabel();
 		elseLabel = genLabel();
-		insert(genCode(Opcode.test,condition));
-		insert(genCode(Opcode.jz,new Operand(elseLabel.label)));
-		blockCode(t.child);
-		if (t.child_else!=null) {
-			insert(genCode(Opcode.jmp,new Operand(endLabel.label)));
-			insert(elseLabel);
+
+		insert(genCode(Opcode.test, condition));		//Generate instruction and put into stream
+		if(t.child_else != null)
+			insert(genCode(Opcode.jz, new Operand(elseLabel.label)));		//Jump if zero to elseLabel
+		else		//No else statement
+			insert(genCode(Opcode.jz, new Operand(endLabel.label)));
+
+		blockCode(t.child);		//Insert instructions for true part of if statement
+
+		if(t.child_else == null)		//No else statement
+			insert(endLabel);
+		else {
+			insert(genCode(Opcode.jmp, new Operand(endLabel.label)));		//End of block of statements
+			insert(elseLabel);		//Put elseLabel into stream
 			blockCode(t.child_else);
 			insert(endLabel);
 		}
+
+
 	}
 
 	private static void expressionCode(Stmt t) {
@@ -125,16 +138,7 @@ public class CodeGenerator {
 		System.out.print("*mathCode* - "+root.operation+" ");
 		switch (root.operation) {
 		case 'r':		// Reference to a variable
-			SymbolTable.Entry symentry;
-			symentry=symTable.get(root.operand);
-			if (symentry==null) {
-				System.out.println("Undefined variable: "+root.operand);
-				return null;
-			}
-			String name = root.operand;
-			DataType dataType = symentry.dataType;
-			int size = symentry.size;
-			src = new Operand(name,dataType,size);
+			src = new Operand(root);
 			System.out.println(root.operand);
 			return src;
 		case 'c':		// Constant
@@ -144,8 +148,6 @@ public class CodeGenerator {
 		}
 		dst = mathCode(root.left);
 		src = mathCode(root.right);
-		if (dst.type!=src.type)
-			System.out.println("Type missmatch of operands");
 		opcode = makeOpcode(root.operation);
 		System.out.println("   Operation: "+opcode+"  "+src.value+"  "+dst.label);
 		switch (opcode) {
@@ -173,7 +175,6 @@ public class CodeGenerator {
 					dst.value -= src.value;
 					break;
 				default:
-
 				}
 				return dst;
 			}
@@ -310,17 +311,17 @@ public class CodeGenerator {
 				System.out.print("	");
 			if (head.opcode != Opcode.none) {
 				System.out.print("	"+head.opcode);
-				switch (head.size) {
+				switch(head.size) {
 				case 1: System.out.print("b");
-						break;
-				case 2:	System.out.print("w");
-						break;
+				break;
+				case 2: System.out.print("w");
+				break;
 				case 4: System.out.print("l");
-				  		break;
-				case 8:	System.out.print("q");
-						break;
+				break;
+				case 8: System.out.print("q");
+				break;
 				}
-				System.out.print("	");
+				System.out.print("  ");
 			}
 			if (head.src!=null) {
 				printOperand(head.src);
@@ -378,30 +379,11 @@ public class CodeGenerator {
 		reg = new Operand();
 		reg.mode = AddrMode.stack;	// All registers are busy, use the stack
 		return reg;
-	}
-	
-	private static Operand getRegister(DataType type) {
-		Operand reg=null;
-		switch (type) {
-			case inttype:
-				reg = getRegister(4);
-				reg.type = type;
-				break;
-			case realtype:
-				reg = getRegister(8);
-				reg.type = type;
-				break;
-			default:
-				reg = getRegister(4);
-				reg.type = type;
-		}
-		return reg;
+
 	}
 	private static void freeRegisters() {
 		for (int i=0; i<registers.length; i++)
-			registers[i] = true;		//  Free the register, mark it as available
-		registers[6] = false; 			//	Make the stack pointer not available
-		registers[7] = false;			//  Make the base pointer register not available
+			registers[i] = true;			//  Free the register, mark it as available
 		regcount=maxreg;
 	}
 
