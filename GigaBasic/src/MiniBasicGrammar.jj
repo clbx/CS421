@@ -94,12 +94,19 @@ Stmt stmt() :
 
 Stmt while_statement() :
 {
+  Stmt statement = new Stmt();
+  statement.type = "while";
+  Stmt true_statement= null;
+  ExpNode exp;
 
 }
 {
-	< WHILE >
+	< WHILE >"(" exp=expression() ")"
+		true_statement=stmt()
 	{
-	  return null;
+	  statement.expression = exp;
+	  statement.child = true_statement;
+	  return statement;
 	}
 }
 
