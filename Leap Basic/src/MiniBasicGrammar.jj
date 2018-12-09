@@ -1,0 +1,282 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */options{  static = true;
+  ignore_case = true;}PARSER_BEGIN(Basic)
+public class Basic{
+  public static SymbolTable symTable = new SymbolTable();
+
+  public static SymbolTable.Entry findSym(String name) {
+    SymbolTable.Entry entry;
+    entry = symTable.get(name);
+    return entry;
+  }
+    public static void main(String args []) throws ParseException  {    Basic parser = new Basic(System.in);    while (true)    {      System.out.println("Reading from standard input...");
+      System.out.println("{  abcv = (2+a)-(b+3) * (c-2); }");      System.out.println("Enter a program block");      try      {
+        Stmt program;        program = parser.giga_basic();
+        System.out.println("*Program: ");
+        program.traverse(1);
+        
+        // Now call the next phase of the compiler
+        // Like the global optimizer
+        // Then the code generator
+        CodeGenerator.walk(program,symTable);      }      catch (Exception e)      {        System.out.println("NOK.");        System.out.println(e.getMessage());        Basic.ReInit(System.in);      }      catch (Error e)      {        System.out.println("Oops.");        System.out.println(e.getMessage());        break;      }    }  }}PARSER_END(Basic)SKIP :{  " "| "\r"| "\t"| "\n"}TOKEN : /* OPERATORS */{  < PLUS : "+" >| < MINUS : "-" >| < MULTIPLY : "*" >| < DIVIDE : "/" >
+| < EQL : "==" >
+| < NEQ : "!=" >
+| < LSS : "<" >
+| < GTR : ">" >
+| < LBRACE : "{" >
+| < RBRACE : "}" >
+| < PRINT : "print" >
+| < IF : "if" >
+| < WHILE : "while" >
+| < ELSE : "else" >
+| < INT : "int" >
+| < REAL : "real" >}TOKEN :{  < CONSTANT : (< DIGIT >)+ >
+| < IDENT : (< LETTER > (< LETTER >|< DIGIT >)*) >| < #DIGIT : [ "0"-"9" ] >
+| < #LETTER : ["a"-"z","A"-"Z"] >}Stmt giga_basic() :{
+  Stmt block_link;
+  for(String name:symTable.keySet()) {
+    SymbolTable.Entry entry = symTable.get(name);
+    System.out.println(name+entry);
+  }
+}{	block_link = block()
+	{
+	  return block_link;
+	}
+}
+Stmt block() :
+{
+  Stmt block_node = new Stmt();
+  Stmt tail = null;
+  Stmt statement_link;
+  block_node.type ="block";  }
+{ < LBRACE > (statement_link = stmt() ";"
+				{ if (statement_link!=null) { 
+				  if (block_node.child==null)
+						block_node.child = statement_link;
+					else
+						tail.next = statement_link;
+					tail = statement_link;
+				}
+				}
+ 			)* < RBRACE >
+ {
+   return block_node;
+ }
+}
+
+void variable() :
+{
+  Token dataType, variableName;
+}
+{
+	( dataType=< INT > | dataType=< REAL > )
+	variableName=< IDENT >
+	{
+		symTable.add(variableName.image, dataType.image);
+	}
+}
+
+Stmt stmt() :
+{	Stmt statement=null;
+}
+{(  	statement = block()
+| 	statement = assignment()
+| 	statement = print_statement()
+| 	statement = if_statement()
+|   statement = while_statement()
+|   variable()
+)
+	{
+		return statement;
+	}
+}
+
+Stmt while_statement() :
+{
+
+}
+{
+	< WHILE >
+	{
+	  return null;
+	}
+}
+
+Stmt if_statement() :
+{
+  Stmt statement = new Stmt();
+  statement.type="if";
+  Stmt true_statement=null;
+  Stmt false_statement=null;
+  ExpNode exp;
+}
+{
+	< IF >  "(" exp=expression() ")"
+			true_statement=stmt()
+		(< ELSE >
+			false_statement=stmt() )?
+	{
+	  statement.expression = exp;
+	  statement.child = true_statement;
+	  statement.child_else = false_statement;
+	  return statement;
+	}
+}
+
+
+Stmt print_statement() :
+{
+  Stmt print = new Stmt();
+  print.type="print";
+  ExpNode exp=null;
+}
+{
+	< PRINT > (exp=expression() )?
+	{
+	  print.expression = exp;
+	  return print;
+	}
+}
+
+Stmt assignment() :
+{
+  	ExpNode asnmnt = new ExpNode();
+  	ExpNode lvalue, rvalue;
+  	Stmt statement = new Stmt();
+  	statement.type="assignment";
+  	statement.expression = asnmnt;
+}
+{
+	lvalue=varref() "=" rvalue=expression()
+	{
+	  //System.out.println("In Assignment");
+	  asnmnt.operation = '=';
+	  asnmnt.left = lvalue;
+	  asnmnt.right= rvalue;
+//		asnmnt.traverse();
+//		System.out.println();
+	  return statement;
+	}
+}
+
+ExpNode expression() :
+{ 	ExpNode root,lchild,rchild;
+	Token operator;
+}
+{
+  root=additive_expression()
+  (
+    (
+      operator = < EQL >
+    | operator = < NEQ >
+    | operator = < GTR >
+    | operator = < LSS >
+    )
+    rchild=additive_expression()
+    { lchild = root;
+    	root = new ExpNode();
+    	root.left = lchild;
+    	root.right= rchild;
+    	root.operation = operator.image.charAt(0);
+   }
+    
+  )?
+  {
+    return root;
+  }
+}
+ExpNode additive_expression() :
+{ 	ExpNode root,lchild,rchild;
+	Token operator;
+}
+{
+  root=term()
+  (
+    (
+      operator = < PLUS >
+    | operator = < MINUS >
+    )
+    rchild=term()
+    { lchild = root;
+    	root = new ExpNode();
+    	root.left = lchild;
+    	root.right= rchild;
+    	root.operation = operator.image.charAt(0);
+   }
+    
+  )*
+  {
+    return root;
+  }
+}
+
+ExpNode term() :
+{
+	ExpNode root,lchild,rchild;
+	Token operator;
+}
+{
+  root=element()
+  (
+    (
+      operator = < MULTIPLY >
+    | operator = < DIVIDE >
+    )
+    rchild=element()
+    { lchild = root;
+    	root = new ExpNode();
+    	root.left = lchild;
+    	root.right= rchild;
+    	root.operation = operator.image.charAt(0);
+   }
+  )*
+  {
+    return root;
+  }
+}
+
+void unary() :
+{}
+{
+  < MINUS > element()
+| element()
+}
+
+ExpNode element() :
+{ ExpNode factor;
+	Token constant;}
+{
+  (
+    
+  	(
+  	  constant=< CONSTANT >
+  	  { factor = new ExpNode();
+  	  factor.operation='c';
+  	  factor.operand = constant.image;
+  	}
+  	)
+	| factor=varref()
+	| "(" factor=expression() ")"
+  )
+{
+  return factor;
+}
+}
+
+ExpNode varref() :
+{
+  ExpNode ref = new ExpNode();
+  Token ident;
+}
+{
+	ident=< IDENT >
+	{
+		ref.operation = 'r';
+		ref.operand = ident.image;
+		ref.left = null;
+		ref.right= null;
+		return ref;
+	}
+}
+
